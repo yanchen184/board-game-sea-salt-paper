@@ -372,42 +372,19 @@ export function useGameState(roomId, gameState, playerId) {
           return state
         }
 
-        const playerIds = Object.keys(state.players)
-        const currentIndex = playerIds.indexOf(state.currentPlayerId)
-        const nextIndex = (currentIndex + 1) % playerIds.length
-        const nextPlayerId = playerIds[nextIndex]
+        // ⚠️ 注意：不要直接切換玩家，要先進入 declare 階段
+        // 這樣玩家才有機會宣告 Stop 或 Last Chance
+        // 即使在 Last Chance 模式下，玩家也應該能宣告 Stop 來立即結束
 
-        // Increment turn count
-        state.turnCount = (state.turnCount || 0) + 1
+        // 先進入 declare 階段
+        state.turnPhase = 'declare'
+        state.pendingEffect = null
 
-        console.log('[endTurn] Turn transition:', {
-          from: state.currentPlayerId,
-          to: nextPlayerId,
-          playerIds,
-          currentIndex,
-          nextIndex,
-          turnCount: state.turnCount,
+        console.log('[endTurn] Entering declare phase', {
+          currentPlayerId: state.currentPlayerId,
           declareMode: state.declareMode,
           remainingTurns: state.remainingTurns
         })
-
-        // Handle Last Chance mode
-        if (state.declareMode === 'last_chance' && state.remainingTurns !== null) {
-          state.remainingTurns = state.remainingTurns - 1
-          console.log('[endTurn] Last Chance mode - remaining turns:', state.remainingTurns)
-
-          // If no more turns left, end the round
-          if (state.remainingTurns <= 0) {
-            console.log('[endTurn] Last Chance complete - ending round')
-            state.turnPhase = 'round_end'
-            return state
-          }
-        }
-
-        state.currentPlayerId = nextPlayerId
-        state.currentPlayerIndex = nextIndex
-        state.turnPhase = 'draw'
-        state.pendingEffect = null
 
         return state
       })
@@ -842,6 +819,65 @@ export function useGameState(roomId, gameState, playerId) {
   }, [roomId, gameState, playerId])
 
   /**
+   * Skip declaration - move to next player without declaring
+   */
+  const skipDeclare = useCallback(async () => {
+    if (!gameState || !playerId) return { success: false, error: 'Invalid state' }
+
+    if (gameState.turnPhase !== 'declare') {
+      return { success: false, error: 'Not in declare phase' }
+    }
+
+    try {
+      await updateGameState(roomId, (state) => {
+        const playerIds = Object.keys(state.players)
+        const currentIndex = playerIds.indexOf(state.currentPlayerId)
+        const nextIndex = (currentIndex + 1) % playerIds.length
+        const nextPlayerId = playerIds[nextIndex]
+
+        // Increment turn count
+        state.turnCount = (state.turnCount || 0) + 1
+
+        console.log('[skipDeclare] Skipping declare, next player:', nextPlayerId)
+
+        // Handle Last Chance mode
+        if (state.declareMode === 'last_chance' && state.remainingTurns !== null) {
+          state.remainingTurns = state.remainingTurns - 1
+          console.log('[skipDeclare] Last Chance mode - remaining turns:', state.remainingTurns)
+
+          // If no more turns left, end the round
+          if (state.remainingTurns <= 0) {
+            console.log('[skipDeclare] Last Chance complete - ending round')
+            state.turnPhase = 'round_end'
+            return state
+          }
+        }
+
+        state.currentPlayerId = nextPlayerId
+        state.currentPlayerIndex = nextIndex
+        state.turnPhase = 'draw'
+        state.pendingEffect = null
+
+        return state
+      })
+
+      // Log action
+      const playerName = localStorage.getItem('playerName') || '未知玩家'
+      await addActionToLog(roomId, {
+        type: 'skip_declare',
+        playerId,
+        playerName,
+        message: '選擇不宣告，結束回合'
+      })
+
+      return { success: true }
+    } catch (error) {
+      console.error('Skip declare error:', error)
+      return { success: false, error: error.message }
+    }
+  }, [roomId, gameState, playerId])
+
+  /**
    * Execute Extra Turn effect - Start a new turn for current player
    * Instead of moving to next player, reset turn phase to 'draw'
    */
@@ -888,6 +924,7 @@ export function useGameState(roomId, gameState, playerId) {
     endTurn,
     declareStop,
     declareLastChance,
+    skipDeclare,
     confirmCardChoice,
     executeCrabEffect,
     executeStealEffect,
