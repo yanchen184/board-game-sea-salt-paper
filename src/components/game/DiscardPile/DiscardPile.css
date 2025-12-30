@@ -1,0 +1,654 @@
+/**
+ * DiscardPile Component Styles
+ *
+ * Premium discard pile design with ocean theme
+ * Features: 3D depth layers, glass morphism, dynamic glow effects
+ *
+ * Design Decisions:
+ * - Visible top card with stacked depth beneath
+ * - Side-specific color coding (left = blue, right = coral)
+ * - Clear interactive states for take/drop actions
+ * - Smooth animations for card transitions
+ */
+
+/* ==================== Base Container ==================== */
+
+.discard-pile {
+  position: relative;
+  width: 140px;
+  height: 200px;
+  cursor: pointer;
+  user-select: none;
+  perspective: 1000px;
+}
+
+/* ==================== Empty State ==================== */
+
+.discard-pile--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  border-radius: var(--radius-lg);
+  transition:
+    background var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+
+  /* Subtle glass effect */
+  background: linear-gradient(
+    145deg,
+    rgba(26, 79, 60, 0.25) 0%,
+    rgba(13, 40, 24, 0.35) 100%
+  );
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.discard-pile__empty-message {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  padding: var(--spacing-md);
+}
+
+.discard-pile__empty-icon {
+  font-size: var(--text-3xl);
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  opacity: 0.5;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.discard-pile__empty-text {
+  font-size: var(--text-sm);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.discard-pile__drop-hint {
+  font-size: var(--text-xs);
+  color: var(--effect-glow-secondary);
+  margin-top: var(--spacing-xs);
+  font-weight: 600;
+  animation: hintPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* ==================== Must Drop State ==================== */
+
+.discard-pile--must-drop {
+  border: 3px solid #f0ad4e !important;
+  border-style: solid !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.15) 0%,
+    rgba(255, 193, 7, 0.25) 100%
+  ) !important;
+  animation: mustDropGlow 1.5s ease-in-out infinite;
+}
+
+.discard-pile--must-drop .discard-pile__empty-icon {
+  opacity: 1;
+  font-size: var(--text-4xl);
+  animation: bounceIcon 1s ease-in-out infinite;
+}
+
+.discard-pile__must-drop-hint {
+  font-size: var(--text-sm);
+  color: #856404;
+  margin-top: var(--spacing-sm);
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffc107 0%, #ffdb4d 100%);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+  animation: hintPulse 1s ease-in-out infinite;
+}
+
+@keyframes mustDropGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(255, 193, 7, 0.5),
+      inset 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 12px rgba(255, 193, 7, 0),
+      0 0 30px rgba(255, 193, 7, 0.3),
+      inset 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes bounceIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ==================== Card Stack Container ==================== */
+
+.discard-pile__stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--transition-base);
+}
+
+/* ==================== Dynamic Depth Layers - Using Card Components ==================== */
+
+.discard-pile__depth-indicator {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+/* Card layer wrapper - positions each Card component in the stack */
+.discard-pile__card-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transition:
+    transform var(--transition-base),
+    opacity var(--transition-base);
+  pointer-events: none;
+}
+
+/* Position layers with 3D offset based on their index - matching DrawDeck direction (LEFT-UP) */
+/* Layers should appear behind and to the left-up of the top card */
+.discard-pile__card-layer {
+  transform: translateX(calc(var(--layer-offset) * -1))
+             translateY(calc(var(--layer-offset) * -1))
+             translateZ(var(--layer-z));
+}
+
+/* Opacity gradient - deeper layers are more transparent */
+.discard-pile__card-layer--5 { opacity: 0.25; }
+.discard-pile__card-layer--4 { opacity: 0.35; }
+.discard-pile__card-layer--3 { opacity: 0.5; }
+.discard-pile__card-layer--2 { opacity: 0.65; }
+.discard-pile__card-layer--1 { opacity: 0.8; }
+
+/* Card inside layers - styling for depth cards */
+.discard-pile__depth-card {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ==================== Top Card Container ==================== */
+
+.discard-pile__top-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  transform: translateZ(0);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+/* Override Card component shadow for better integration */
+.discard-pile__card {
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ==================== Card Animations ==================== */
+
+/* Card entering pile */
+.discard-pile__top-card {
+  animation: cardEnter var(--transition-base) ease-out;
+}
+
+@keyframes cardEnter {
+  from {
+    transform: translateY(-60px) scale(1.1) rotate(-3deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+/* Taking animation */
+.discard-pile__top-card--taking {
+  animation: cardTake 500ms var(--ease-out) forwards;
+}
+
+@keyframes cardTake {
+  0% {
+    transform: translateY(0) scale(1) rotate(0);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-40px) scale(1.15) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120px) scale(0.8) rotate(-5deg);
+    opacity: 0;
+  }
+}
+
+/* ==================== Count Badge ==================== */
+
+.discard-pile__count-badge {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+
+  /* Default gradient (overridden by side-specific) */
+  background: linear-gradient(
+    135deg,
+    #4a9eff 0%,
+    #2a7ed9 50%,
+    #1a5eb3 100%
+  );
+
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.discard-pile__count-number {
+  display: block;
+  font-weight: 800;
+  font-size: var(--text-sm);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+/* Side-specific badge colors */
+.discard-pile--left .discard-pile__count-badge {
+  background: linear-gradient(
+    135deg,
+    #4a9eff 0%,
+    #2a7ed9 50%,
+    #1a5eb3 100%
+  );
+  box-shadow:
+    0 4px 12px rgba(42, 126, 217, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.discard-pile--right .discard-pile__count-badge {
+  background: linear-gradient(
+    135deg,
+    #ff6b6b 0%,
+    #e74c3c 50%,
+    #c0392b 100%
+  );
+  box-shadow:
+    0 4px 12px rgba(231, 76, 60, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ==================== Interactive States ==================== */
+
+/* Can Take - Ready to pick up card */
+.discard-pile--can-take {
+  cursor: pointer;
+}
+
+.discard-pile--can-take .discard-pile__top-card {
+  animation: readyTakePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes readyTakePulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.5));
+  }
+}
+
+/* Hover state for takeable pile */
+.discard-pile--can-take:hover .discard-pile__stack {
+  transform: translateY(-8px) rotateX(3deg);
+}
+
+.discard-pile--can-take:hover .discard-pile__top-card {
+  animation: none;
+  filter: drop-shadow(0 0 20px rgba(100, 200, 255, 0.6));
+}
+
+/* Spread depth layers on hover for dramatic effect - maintains LEFT-UP direction */
+.discard-pile--can-take:hover .discard-pile__card-layer {
+  transform: translateX(calc(var(--layer-offset) * -1.5))
+             translateY(calc(var(--layer-offset) * -1.5))
+             translateZ(calc(var(--layer-z) * 1.5));
+}
+
+.discard-pile--can-take:hover .discard-pile__count-badge {
+  transform: scale(1.12);
+}
+
+/* Active/clicking state */
+.discard-pile--can-take:active .discard-pile__stack {
+  transform: translateY(-4px) rotateX(1deg) scale(0.98);
+  transition: transform 0.1s ease-out;
+}
+
+/* ==================== Drag Over State ==================== */
+
+.discard-pile--drag-over {
+  animation: dragOverGlow 1s ease-in-out infinite;
+}
+
+.discard-pile--drag-over.discard-pile--empty {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.15) 0%,
+    rgba(0, 153, 204, 0.25) 100%
+  );
+  border: 2px solid var(--effect-glow-secondary);
+  border-style: solid;
+}
+
+.discard-pile--drag-over .discard-pile__stack {
+  transform: scale(1.03);
+  transition: transform 0.2s ease-out;
+}
+
+.discard-pile--drag-over .discard-pile__empty-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@keyframes dragOverGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(0, 212, 255, 0.6),
+      0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px rgba(0, 212, 255, 0),
+      0 0 25px rgba(0, 212, 255, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Can Drop State */
+.discard-pile--can-drop {
+  cursor: copy;
+  transition: all 0.2s ease;
+}
+
+.discard-pile--can-drop::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px dashed rgba(0, 212, 255, 0.25);
+  border-radius: calc(var(--radius-lg) + 3px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.discard-pile--can-drop:hover::after {
+  opacity: 1;
+  animation: dashedBorderRotate 10s linear infinite;
+}
+
+@keyframes dashedBorderRotate {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 100; }
+}
+
+/* ==================== Hover Prompt ==================== */
+
+.discard-pile__prompt {
+  position: absolute;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+
+  /* Glass morphism effect */
+  background: rgba(0, 30, 50, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(100, 200, 255, 0.3);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(100, 200, 255, 0.15);
+  backdrop-filter: blur(8px);
+
+  animation: promptFadeIn var(--transition-fast);
+}
+
+.discard-pile__prompt::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid rgba(0, 30, 50, 0.9);
+}
+
+@keyframes promptFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ==================== Drop Indicator ==================== */
+
+.discard-pile__drop-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 15;
+  pointer-events: none;
+
+  /* Glass panel */
+  background: rgba(0, 30, 50, 0.85);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(0, 212, 255, 0.2);
+  backdrop-filter: blur(8px);
+
+  animation: dropIndicatorBounce 1s ease-in-out infinite;
+}
+
+.discard-pile__drop-icon {
+  font-size: var(--text-2xl);
+  display: block;
+  margin-bottom: var(--spacing-1);
+  color: var(--effect-glow-secondary);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.discard-pile__drop-text {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  display: block;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes dropIndicatorBounce {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, calc(-50% - 8px)); }
+}
+
+/* ==================== Focus State for Accessibility ==================== */
+
+.discard-pile:focus-visible {
+  outline: none;
+}
+
+.discard-pile:focus-visible .discard-pile__stack {
+  outline: 3px solid var(--effect-glow-secondary);
+  outline-offset: 4px;
+  border-radius: var(--radius-lg);
+}
+
+.discard-pile:focus-visible.discard-pile--empty {
+  outline: 3px solid var(--effect-glow-secondary);
+  outline-offset: 4px;
+}
+
+/* Disabled State */
+.discard-pile[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  filter: grayscale(0.3);
+}
+
+/* ==================== Responsive Design ==================== */
+
+@media (max-width: 768px) {
+  .discard-pile {
+    width: 100px;
+    height: 140px;
+  }
+
+  /* Reduce layer offset on mobile */
+  .discard-pile__card-layer {
+    --layer-offset: calc(var(--layer-index, 0) * 2px);
+    --layer-z: calc(var(--layer-index, 0) * 1px);
+  }
+
+  .discard-pile__count-badge {
+    width: 32px;
+    height: 32px;
+    top: -10px;
+    right: -10px;
+    font-size: var(--text-xs);
+    border-width: 2px;
+  }
+
+  .discard-pile__empty-icon {
+    font-size: var(--text-2xl);
+  }
+
+  .discard-pile__prompt {
+    bottom: -38px;
+    font-size: var(--text-xs);
+    padding: 4px 10px;
+  }
+
+  .discard-pile__drop-icon {
+    font-size: var(--text-xl);
+  }
+
+  .discard-pile__drop-indicator {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+/* ==================== Reduced Motion ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .discard-pile__top-card,
+  .discard-pile--can-take .discard-pile__top-card,
+  .discard-pile--must-drop .discard-pile__empty-icon,
+  .discard-pile--drag-over,
+  .discard-pile__drop-indicator {
+    animation: none;
+  }
+
+  .discard-pile__top-card--taking {
+    animation: none;
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  .discard-pile__drop-hint,
+  .discard-pile__must-drop-hint {
+    animation: none;
+  }
+
+  .discard-pile__card-layer,
+  .discard-pile__depth-card {
+    transition: none;
+  }
+}
+
+/* ==================== Ambient Effects ==================== */
+
+/* Subtle inner glow for non-empty pile */
+.discard-pile:not(.discard-pile--empty)::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: calc(var(--radius-lg) + 5px);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(100, 200, 255, 0.15) 0%,
+    transparent 60%
+  );
+}
+
+.discard-pile--can-take:not(.discard-pile--empty)::before {
+  opacity: 1;
+  animation: ambientPileGlow 3s ease-in-out infinite;
+}
+
+@keyframes ambientPileGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}

@@ -1,0 +1,332 @@
+.room-lobby {
+  padding: var(--spacing-xl);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background: var(--primary-bg);
+}
+
+.room-lobby__container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Loading state */
+.room-lobby--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.room-lobby__loading {
+  text-align: center;
+}
+
+.room-lobby__loading-spinner {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--spacing-md);
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state */
+.room-lobby--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.room-lobby__error {
+  text-align: center;
+  background: var(--secondary-bg);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--danger);
+}
+
+.room-lobby__error-icon {
+  font-size: var(--text-4xl);
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+.room-lobby__error-banner {
+  background: var(--danger);
+  color: var(--text-primary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  font-weight: 600;
+  animation: shake 0.5s;
+}
+
+/* Header */
+.room-lobby__header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.room-lobby__title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+/* Room code display */
+.room-lobby__room-code {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  background: var(--secondary-bg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+}
+
+.room-lobby__code-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.room-lobby__code-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  font-family: monospace;
+}
+
+.room-lobby__copy-btn {
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.room-lobby__copy-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Section title */
+.room-lobby__section-title {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+/* Players section */
+.room-lobby__players {
+  background: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  margin-bottom: var(--spacing-lg);
+}
+
+.room-lobby__players-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Individual player */
+.room-lobby__player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--primary-bg);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+.room-lobby__player--ready {
+  border-color: var(--success);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.room-lobby__player--disconnected {
+  opacity: 0.5;
+  border-color: var(--danger);
+}
+
+.room-lobby__player-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.room-lobby__player-name {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.room-lobby__player-badge {
+  background: var(--accent);
+  color: var(--text-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.room-lobby__player-status {
+  display: flex;
+  align-items: center;
+}
+
+.room-lobby__player-status-text {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.room-lobby__player-status-text--ready {
+  color: var(--success);
+}
+
+.room-lobby__player-status-text--waiting {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Settings summary */
+.room-lobby__settings-summary {
+  background: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  margin-bottom: var(--spacing-lg);
+}
+
+.room-lobby__settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.room-lobby__setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--primary-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.room-lobby__setting-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.room-lobby__setting-value {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.room-lobby__settings-btn {
+  width: 100%;
+}
+
+/* Actions */
+.room-lobby__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.room-lobby__start-btn,
+.room-lobby__ready-btn {
+  width: 100%;
+}
+
+.room-lobby__leave-btn {
+  width: 100%;
+}
+
+/* Settings form modal */
+.room-lobby__settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.room-lobby__settings-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.room-lobby__settings-actions button {
+  flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .room-lobby {
+    padding: var(--spacing-md);
+  }
+
+  .room-lobby__title {
+    font-size: var(--text-2xl);
+  }
+
+  .room-lobby__room-code {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .room-lobby__code-value {
+    font-size: var(--text-xl);
+  }
+
+  .room-lobby__players,
+  .room-lobby__settings-summary {
+    padding: var(--spacing-md);
+  }
+
+  .room-lobby__player {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .room-lobby__settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animations */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}

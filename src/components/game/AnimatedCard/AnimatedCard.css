@@ -1,0 +1,127 @@
+/* AnimatedCard.css */
+
+.animated-card {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+/* Deck to Hand animation */
+.animated-card--deck-to-hand {
+  /* Start at deck position (center-top of table area) */
+  top: 30vh;
+  left: 50%;
+
+  /* Animate to hand position (bottom center) */
+  animation: deckToHand 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes deckToHand {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8) rotateY(180deg);
+    opacity: 0.8;
+  }
+
+  20% {
+    transform: translate(-50%, -40%) scale(1) rotateY(90deg);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(-50%, 0%) scale(1.1) rotateY(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, 50vh) scale(1) rotateY(0deg);
+    top: 80vh;
+    opacity: 0;
+  }
+}
+
+/* Discard to Hand animation */
+.animated-card--discard-to-hand {
+  /* Start at discard pile position */
+  top: 30vh;
+  left: 30%;
+
+  /* Animate to hand position */
+  animation: discardToHand 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes discardToHand {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0.8;
+  }
+
+  30% {
+    transform: translate(-50%, -20%) scale(1.05);
+    opacity: 1;
+  }
+
+  60% {
+    left: 50%;
+    transform: translate(-50%, 10%) scale(1.1);
+  }
+
+  100% {
+    left: 50%;
+    transform: translate(-50%, 50vh) scale(1);
+    top: 80vh;
+    opacity: 0;
+  }
+}
+
+/* Add glow effect during animation */
+.animated-card--deck-to-hand,
+.animated-card--discard-to-hand {
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  @keyframes deckToHand {
+    0% {
+      transform: translate(-50%, -50%) scale(0.7) rotateY(180deg);
+    }
+
+    20% {
+      transform: translate(-50%, -40%) scale(0.9) rotateY(90deg);
+    }
+
+    50% {
+      transform: translate(-50%, 0%) scale(1) rotateY(0deg);
+    }
+
+    100% {
+      transform: translate(-50%, 40vh) scale(0.9) rotateY(0deg);
+      top: 75vh;
+      opacity: 0;
+    }
+  }
+
+  @keyframes discardToHand {
+    0% {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    30% {
+      transform: translate(-50%, -20%) scale(0.95);
+    }
+
+    60% {
+      left: 50%;
+      transform: translate(-50%, 10%) scale(1);
+    }
+
+    100% {
+      left: 50%;
+      transform: translate(-50%, 40vh) scale(0.9);
+      top: 75vh;
+      opacity: 0;
+    }
+  }
+}

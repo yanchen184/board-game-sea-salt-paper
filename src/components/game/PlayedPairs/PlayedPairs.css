@@ -1,0 +1,332 @@
+/**
+ * PlayedPairs Component CSS
+ * Displays paired cards that have been played
+ * Supports full and compact views, with responsive behavior
+ */
+
+/* Main container */
+.played-pairs {
+  background: rgba(245, 230, 211, 0.6);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  transition: var(--transition-all);
+}
+
+/* Header section */
+.played-pairs__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-3);
+}
+
+.played-pairs__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+}
+
+.played-pairs__toggle-icon {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* Container for pairs */
+.played-pairs__container {
+  display: flex;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+/* Individual pair container */
+.played-pair {
+  display: flex;
+  gap: var(--spacing-1);
+  padding: var(--spacing-2);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-all);
+  position: relative;
+  cursor: pointer;
+}
+
+.played-pair:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Mini cards for played pairs */
+.played-pair__card {
+  width: 50px;
+  height: 70px;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-xs);
+  position: relative;
+}
+
+/* Card emoji/icon */
+.played-pair__card-emoji {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-1);
+}
+
+/* Card value */
+.played-pair__card-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  position: absolute;
+  bottom: var(--spacing-1);
+  right: var(--spacing-1);
+}
+
+/* Color variants for mini cards */
+.played-pair__card--blue {
+  background: linear-gradient(135deg, #2C5F8D 0%, #1E4165 100%);
+  border-color: #2C5F8D;
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.played-pair__card--blue .played-pair__card-value {
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.played-pair__card--red {
+  background: linear-gradient(135deg, #C0392B 0%, #A93226 100%);
+  border-color: #C0392B;
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.played-pair__card--red .played-pair__card-value {
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.played-pair__card--yellow {
+  background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+  border-color: #F39C12;
+  color: #1A1A1A;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.played-pair__card--yellow .played-pair__card-value {
+  color: #1A1A1A;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.played-pair__card--purple {
+  background: linear-gradient(135deg, #7D3C98 0%, #6C3483 100%);
+  border-color: #7D3C98;
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.played-pair__card--purple .played-pair__card-value {
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Pair effect indicator */
+.played-pair__effect {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--primary-ocean);
+  color: var(--text-inverse);
+  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Empty state */
+.played-pairs__empty {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  text-align: center;
+  padding: var(--spacing-6) 0;
+}
+
+/* Compact view for opponents */
+.played-pairs--compact {
+  background: transparent;
+  padding: 0;
+}
+
+.played-pairs__compact {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+}
+
+.played-pairs__compact-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.played-pairs__compact-list {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.played-pairs__compact-pair {
+  display: inline-flex;
+  gap: 2px;
+  background: rgba(44, 95, 141, 0.1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.played-pairs__compact-empty {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+/* Collapsible state (mobile) */
+.played-pairs--collapsible .played-pairs__header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.played-pairs--collapsible .played-pairs__header:hover {
+  background: rgba(44, 95, 141, 0.05);
+  margin: calc(var(--spacing-3) * -1) calc(var(--spacing-4) * -1);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+}
+
+.played-pairs--collapsed .played-pairs__toggle-icon {
+  transform: rotate(-90deg);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .played-pairs {
+    padding: var(--spacing-3);
+  }
+
+  .played-pairs__label {
+    font-size: var(--font-size-xs);
+  }
+
+  .played-pairs__container {
+    gap: var(--spacing-2);
+  }
+
+  .played-pair {
+    padding: var(--spacing-1);
+    gap: 2px;
+  }
+
+  /* Mobile mini cards */
+  .played-pair__card {
+    width: 40px;
+    height: 56px;
+    font-size: var(--font-size-lg);
+  }
+
+  .played-pair__card-emoji {
+    font-size: var(--font-size-lg);
+  }
+
+  .played-pair__card-value {
+    font-size: 10px;
+    bottom: 2px;
+    right: 2px;
+  }
+
+  .played-pair__effect {
+    top: -6px;
+    right: -6px;
+    font-size: 8px;
+    padding: 1px 4px;
+  }
+
+  /* Make collapsible on mobile by default */
+  .played-pairs:not(.played-pairs--compact) {
+    background: rgba(245, 230, 211, 0.9);
+  }
+
+  .played-pairs__header {
+    padding: var(--spacing-2);
+    margin: calc(var(--spacing-3) * -1);
+    margin-bottom: var(--spacing-2);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .played-pair__card {
+    width: 45px;
+    height: 63px;
+  }
+
+  .played-pair__card-emoji {
+    font-size: var(--font-size-xl);
+  }
+
+  .played-pair__card-value {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Accessibility */
+.played-pair:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.played-pairs--collapsible .played-pairs__header:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-md);
+}
+
+/* Animation for new pairs */
+@keyframes pairSlideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.played-pair {
+  animation: pairSlideIn 300ms var(--ease-out);
+}
+
+/* Performance optimization */
+@media (prefers-reduced-motion: no-preference) {
+  .played-pair,
+  .played-pairs__toggle-icon {
+    will-change: transform;
+  }
+}

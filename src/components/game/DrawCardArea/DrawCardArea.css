@@ -1,0 +1,170 @@
+/**
+ * DrawCardArea Component Styles
+ *
+ * Fixed overlay display of drawn cards (不影響其他元素位置)
+ */
+
+.draw-card-area {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: fadeInScale 0.3s ease-out;
+  pointer-events: auto;
+  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Instruction text */
+.draw-card-area__instruction {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-ocean);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--primary-ocean);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(44, 95, 141, 0.3);
+  }
+}
+
+/* Warning instruction - when there's an empty pile */
+.draw-card-area__instruction--warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+  border-color: #f0ad4e;
+  color: #856404;
+  animation: warningPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.5);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(240, 173, 78, 0);
+  }
+}
+
+/* Container style when there's an empty pile */
+.draw-card-area--has-empty-pile {
+  border: 2px solid #f0ad4e;
+}
+
+/* Cards container */
+.draw-card-area__cards {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Individual card wrapper */
+.draw-card-area__card-wrapper {
+  position: relative;
+  cursor: grab;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  animation: cardAppear 0.4s ease-out backwards;
+}
+
+.draw-card-area__card-wrapper:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.draw-card-area__card-wrapper:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.draw-card-area__card-wrapper:hover {
+  transform: translateY(-8px);
+  z-index: 10;
+}
+
+.draw-card-area__card-wrapper:active {
+  cursor: grabbing;
+}
+
+.draw-card-area__card-wrapper--dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.draw-card-area__card {
+  pointer-events: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  transition: filter 0.2s ease;
+}
+
+.draw-card-area__card-wrapper:hover .draw-card-area__card {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .draw-card-area {
+    gap: 8px;
+  }
+
+  .draw-card-area__instruction {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .draw-card-area__cards {
+    gap: 12px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .draw-card-area,
+  .draw-card-area__card-wrapper,
+  .draw-card-area__instruction {
+    animation: none;
+    transition: none;
+  }
+}

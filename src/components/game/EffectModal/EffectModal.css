@@ -1,0 +1,89 @@
+/**
+ * EffectModal Component CSS
+ * Generic modal for card effects
+ */
+
+/* Overlay */
+.effect-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.effect-modal {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  padding: var(--spacing-xl);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  animation: slideUp 300ms var(--ease-out);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Header */
+.effect-modal__header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.effect-modal__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-ocean);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.effect-modal__description {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Content */
+.effect-modal__content {
+  min-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .effect-modal {
+    padding: var(--spacing-lg);
+    max-width: 95vw;
+  }
+
+  .effect-modal__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .effect-modal__description {
+    font-size: var(--font-size-base);
+  }
+}

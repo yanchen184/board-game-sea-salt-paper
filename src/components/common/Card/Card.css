@@ -1,0 +1,851 @@
+/**
+ * Card Component
+ * Playing card with color-coded borders and value display
+ * Supports drag-and-drop, selection, and hover states
+ *
+ * Design Notes:
+ * - Optimized typography for readability at small sizes
+ * - Clear visual hierarchy: Emoji > Value > Name > Type/Rule
+ * - Minimum readable font sizes enforced for accessibility
+ */
+
+.card {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+
+  /* Sizing */
+  width: var(--card-width);
+  height: var(--card-height);
+  padding: var(--spacing-2);
+
+  /* Visual - thicker border for color visibility */
+  background: var(--bg-primary);
+  border-radius: var(--radius-card);
+  border: 5px solid var(--card-border-color, var(--border-light));
+  box-shadow: var(--shadow-card);
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+
+  /* Performance */
+  will-change: transform, box-shadow;
+  transition: transform var(--duration-medium) var(--ease-out),
+              box-shadow var(--duration-medium) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+
+  /* Position for absolutely positioned elements */
+  position: relative;
+}
+
+/* Sizes */
+.card--tiny {
+  width: 45px;
+  height: 63px;
+  padding: var(--spacing-1);
+}
+
+.card--small {
+  width: 60px;
+  height: 84px;
+}
+
+.card--medium {
+  width: var(--card-width);
+  height: var(--card-height);
+}
+
+.card--large {
+  width: 120px;
+  height: 168px;
+}
+
+/* ==================== Card Front Layout ==================== */
+
+.card__front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  padding: 6px 4px 8px;
+  position: relative;
+}
+
+/* Value - Top Right Corner (Primary Game Info) */
+.card__value {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  /* Increased from 1.5rem to 1.25rem (20px) for better visibility */
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: 1;
+  /* Add subtle text shadow for contrast on colored backgrounds */
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Emoji - Center (Primary Visual Element) */
+.card__emoji {
+  width: 100%;
+  /* Reduced height to make room for text */
+  height: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Slightly reduced to give more space to text elements */
+  font-size: 2.25rem;
+  margin-top: 20px;
+}
+
+.card--tiny .card__emoji {
+  font-size: 1rem;
+  margin-top: 12px;
+}
+
+.card--small .card__emoji {
+  font-size: 1.5rem;
+  margin-top: 16px;
+}
+
+.card--large .card__emoji {
+  font-size: 3rem;
+  margin-top: 24px;
+}
+
+/* Origami Image Styles */
+.card__origami-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.card__origami-image:hover {
+  transform: scale(1.05);
+}
+
+/* Tooltip Origami Image */
+.card__tooltip-origami-image {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* Large card specific typography */
+.card--large .card__value {
+  font-size: 1.5rem;
+  top: 6px;
+  right: 8px;
+}
+
+.card--large .card__name {
+  font-size: 1rem;
+}
+
+.card--large .card__type-badge {
+  font-size: 0.75rem;
+  padding: 3px 6px;
+  top: 6px;
+  left: 6px;
+}
+
+.card--large .card__rule-hint {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  bottom: 8px;
+}
+
+/* Small card specific typography */
+.card--small .card__value {
+  font-size: 0.875rem;
+  top: 2px;
+  right: 4px;
+}
+
+.card--small .card__name {
+  font-size: 0.625rem;
+  margin: 2px 0 0;
+}
+
+/* Tiny card - minimal text, focus on emoji and value */
+.card--tiny .card__value {
+  font-size: 0.75rem;
+  top: 2px;
+  right: 3px;
+}
+
+.card--tiny .card__name {
+  font-size: 0.5rem;
+  margin: 1px 0 0;
+}
+
+/* Card Name - Below Emoji */
+.card__name {
+  /* Increased from 0.75rem (12px) to 0.875rem (14px) */
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 4px 0 2px;
+  line-height: 1.2;
+  /* Prevent long names from breaking layout */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==================== Color Marker - Top Left ==================== */
+/* Shows card color with a colored circle and text label */
+
+.card__color-marker {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px 2px 4px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.card__color-marker::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: inherit;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.card__color-marker-text {
+  font-size: 0.5rem;
+  font-weight: var(--font-weight-bold);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.3px;
+}
+
+/* Tiny card - hide text, show only dot */
+.card--tiny .card__color-marker {
+  padding: 3px;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  top: 2px;
+  left: 2px;
+}
+
+.card--tiny .card__color-marker::before {
+  display: none;
+}
+
+.card--tiny .card__color-marker-text {
+  display: none;
+}
+
+/* Small card - smaller marker */
+.card--small .card__color-marker {
+  padding: 2px 5px 2px 3px;
+  top: 3px;
+  left: 3px;
+}
+
+.card--small .card__color-marker::before {
+  width: 6px;
+  height: 6px;
+}
+
+.card--small .card__color-marker-text {
+  font-size: 0.4375rem;
+}
+
+/* Large card - larger marker */
+.card--large .card__color-marker {
+  padding: 3px 8px 3px 5px;
+  top: 6px;
+  left: 6px;
+}
+
+.card--large .card__color-marker::before {
+  width: 10px;
+  height: 10px;
+}
+
+.card--large .card__color-marker-text {
+  font-size: 0.625rem;
+}
+
+/* ==================== Type Badge (Legacy - kept for compatibility) ==================== */
+/* Shows card category: Pair, Collection, Multiplier, Special */
+
+.card__type-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  /* Increased from 0.5rem (8px) to 0.625rem (10px) */
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-bold);
+  /* Increased padding for better touch targets and readability */
+  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+  /* Improved contrast with semi-transparent dark background */
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--neutral-white);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  /* Subtle shadow for better separation from card background */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  display: none; /* Hidden by default, color marker takes priority */
+}
+
+/* Type-specific badge colors with improved contrast */
+.card__type-badge--pair_effect {
+  background: var(--primary-ocean);
+  /* Slightly brighter for dark blue background */
+  color: #ffffff;
+}
+
+.card__type-badge--collection {
+  background: var(--success);
+  color: #ffffff;
+}
+
+.card__type-badge--multiplier {
+  background: var(--warning);
+  /* Dark text on yellow for better contrast */
+  color: #1a1a1a;
+}
+
+.card__type-badge--special {
+  background: var(--card-purple);
+  color: #ffffff;
+}
+
+/* ==================== Rule Hint - Bottom Center ==================== */
+/* Short effect description like "Pair = Take Discard" or "2x = 5pts" */
+
+.card__rule-hint {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Increased from 0.5rem (8px) to 0.625rem (10px) */
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-semibold);
+  /* Increased padding for better readability */
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  /* Higher opacity for better contrast */
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  /* Allow wrapping for longer hints on larger cards */
+  white-space: nowrap;
+  max-width: 95%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Subtle shadow for depth */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  line-height: 1.3;
+}
+
+/* Tooltip - appears on prolonged hover */
+.card__tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-max);
+  animation: tooltipFadeIn 0.2s ease-out;
+  pointer-events: none;
+}
+
+/* Fixed position tooltip - not affected by parent overflow */
+.card__tooltip--fixed {
+  position: fixed;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  z-index: 99999;
+}
+
+/* Hide arrow for fixed position tooltip since position is dynamic */
+.card__tooltip--fixed::after {
+  display: none;
+}
+
+.card__tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--bg-primary);
+}
+
+.card__tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--secondary-bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card__tooltip-emoji {
+  font-size: var(--font-size-xl);
+}
+
+.card__tooltip-name {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.card__tooltip-body {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.card__tooltip-desc {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-xs) 0;
+  line-height: 1.4;
+}
+
+.card__tooltip-score {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-ocean);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.card__tooltip-tips {
+  font-size: var(--font-size-xs);
+  color: var(--warning);
+  margin: 0;
+  font-style: italic;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Card Back (face-down) */
+.card--face-down {
+  background: var(--secondary-sand);
+  border-color: var(--secondary-sand-dark);
+}
+
+.card--face-down::before {
+  content: '';
+  position: absolute;
+  inset: var(--spacing-2);
+  border: var(--border-medium) solid var(--secondary-sand-dark);
+  border-radius: calc(var(--radius-card) - 4px);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--secondary-sand-dark),
+    var(--secondary-sand-dark) 10px,
+    var(--secondary-sand) 10px,
+    var(--secondary-sand) 20px
+  );
+}
+
+.card__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.card__back-pattern {
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+/* Color Variants (based on card color) */
+.card--blue {
+  border-color: var(--card-blue);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--card-blue-light) 100%);
+}
+
+.card--red {
+  border-color: var(--card-red);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--card-red-light) 100%);
+}
+
+.card--yellow {
+  border-color: var(--card-yellow);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--card-yellow-light) 100%);
+}
+
+.card--purple {
+  border-color: var(--card-purple);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--card-purple-light) 100%);
+}
+
+.card--green {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(76, 175, 80, 0.15) 100%);
+}
+
+.card--gray {
+  border-color: #9E9E9E;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(158, 158, 158, 0.15) 100%);
+}
+
+.card--black {
+  border-color: #424242;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(66, 66, 66, 0.15) 100%);
+}
+
+.card--white {
+  border-color: #E0E0E0;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(255, 255, 255, 0.3) 100%);
+}
+
+.card--multicolor {
+  border-color: #9C27B0;
+  background: linear-gradient(135deg,
+    rgba(244, 67, 54, 0.1) 0%,
+    rgba(255, 193, 7, 0.1) 25%,
+    rgba(76, 175, 80, 0.1) 50%,
+    rgba(33, 150, 243, 0.1) 75%,
+    rgba(156, 39, 176, 0.1) 100%);
+}
+
+/* ==================== Interactive States ==================== */
+
+/* 1. Default State - 基礎狀態 */
+.card {
+  /* 已在基礎樣式中定義 */
+  /* transform: translateY(0); */
+  /* box-shadow: var(--shadow-card); */
+  /* opacity: 1; */
+}
+
+/* 2. Hover State - 滑鼠懸停（僅桌面版） */
+@media (hover: hover) {
+  .card:hover:not(.card--disabled):not(.card--dragging) {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-card-hover);
+    z-index: var(--z-card-hover);
+  }
+}
+
+/* 3. Selected State - 已選中（配對用） - 強化"拿起來"的感覺 */
+.card--selected {
+  transform: translateY(-32px) scale(1.12) rotate(-2deg); /* 更大抬升、縮放、輕微旋轉 */
+  border-width: 6px;
+  box-shadow:
+    0 0 0 6px var(--card-color, rgba(44, 95, 141, 0.9)),  /* 更強的顏色發光外圈 */
+    0 0 25px 6px var(--card-color, rgba(44, 95, 141, 0.7)), /* 更大外層發光 */
+    0 20px 40px rgba(0, 0, 0, 0.4),     /* 更遠更深的陰影 */
+    0 10px 20px rgba(0, 0, 0, 0.25);    /* 額外層次陰影 */
+  z-index: var(--z-card-hover);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 彈性過渡效果 */
+  /* 添加脈衝動畫 */
+  animation: cardSelectedPulse 1.2s ease-in-out infinite;
+}
+
+/* 選中卡牌的脈衝動畫 */
+@keyframes cardSelectedPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 6px var(--card-color, rgba(44, 95, 141, 0.9)),
+      0 0 25px 6px var(--card-color, rgba(44, 95, 141, 0.7)),
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 10px 20px rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px var(--card-color, rgba(44, 95, 141, 1)),
+      0 0 35px 8px var(--card-color, rgba(44, 95, 141, 0.85)),
+      0 24px 48px rgba(0, 0, 0, 0.45),
+      0 12px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.card--selected::before {
+  /* 背景高亮層 - 增強亮度 */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.2) 100%);
+  border-radius: calc(var(--radius-card) - 5px);
+  pointer-events: none;
+  z-index: 1;
+  /* 脈衝光效 */
+  animation: cardGlow 1.2s ease-in-out infinite;
+}
+
+/* 卡牌發光脈衝 */
+@keyframes cardGlow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.card--selected::after {
+  content: '✓';
+  position: absolute;
+  /* Moved to bottom-right since value is now top-right */
+  bottom: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: var(--neutral-white);
+  width: 36px;  /* 增大勾勾 */
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;  /* 增大字體 */
+  font-weight: var(--font-weight-bold);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.6),
+              0 2px 6px rgba(0, 0, 0, 0.4),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.2);  /* 內陰影增加立體感 */
+  z-index: 10;
+  /* 勾勾出現動畫 + 持續脈衝 */
+  animation: checkmarkAppear 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+             checkmarkPulse 1.2s ease-in-out 0.4s infinite;
+}
+
+/* 勾勾出現動畫 */
+@keyframes checkmarkAppear {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3) rotate(15deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* 勾勾持續脈衝 */
+@keyframes checkmarkPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 3.5. Lifted State - 右鍵"拿起"狀態 (更誇張的效果) */
+.card--lifted {
+  transform: translateY(-48px) scale(1.15) rotate(-3deg); /* 更高、更大、更斜 */
+  border-width: 7px;
+  box-shadow:
+    0 0 0 8px var(--card-color, rgba(44, 95, 141, 1)),  /* 更寬的發光邊框 */
+    0 0 35px 8px var(--card-color, rgba(44, 95, 141, 0.85)), /* 強烈外層發光 */
+    0 30px 60px rgba(0, 0, 0, 0.5),     /* 非常遠的陰影 */
+    0 15px 30px rgba(0, 0, 0, 0.35);    /* 第二層陰影 */
+  z-index: calc(var(--z-card-hover) + 5);  /* 更高層級 */
+  cursor: grab;  /* 顯示"抓握"游標 */
+  transition: none;  /* 移除過渡動畫，讓拿起/放下更直接 */
+}
+
+.card--lifted::before {
+  /* 更強的背景高亮 */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.3) 100%);
+  border-radius: calc(var(--radius-card) - 5px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card--lifted::after {
+  /* 顯示"✋"表示被拿起 */
+  content: '✋';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 1.5rem;
+  opacity: 0.8;
+  z-index: 10;
+  animation: handWave 0.6s ease-in-out infinite alternate;
+}
+
+/* 手掌揮動動畫 */
+@keyframes handWave {
+  0% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
+}
+
+/* 4. Disabled State - 禁用（無法選擇） */
+.card--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;  /* 防止所有互動 */
+}
+
+/* 禁用狀態覆蓋 hover 效果 */
+.card--disabled:hover {
+  transform: translateY(0) !important;
+  box-shadow: var(--shadow-card) !important;
+  z-index: var(--z-card) !important;
+}
+
+/* 5. Dragging State - 拖曳中 */
+.card--dragging {
+  opacity: 0.6;
+  cursor: grabbing !important;
+  transform: rotate(5deg) scale(1.05);
+  z-index: var(--z-max);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Animation Classes */
+.card--drawing {
+  animation: cardDraw 500ms var(--ease-out);
+}
+
+.card--flipping {
+  animation: cardFlip 600ms var(--ease-in-out);
+}
+
+/* ==================== Mobile Responsive Design ==================== */
+/* Card size: 85px x 119px on mobile */
+/* Focus on maintaining readability at smaller sizes */
+
+@media (max-width: 768px) {
+  .card {
+    width: var(--card-width-mobile);
+    height: var(--card-height-mobile);
+    padding: var(--spacing-1);
+  }
+
+  .card__front {
+    padding: 4px 3px 6px;
+  }
+
+  /* Emoji - Scaled for mobile */
+  .card__emoji {
+    font-size: 1.5rem;
+    margin-top: 14px;
+    height: 40%;
+  }
+
+  /* Name - Minimum 11px for readability */
+  .card__name {
+    font-size: 0.6875rem; /* 11px - minimum readable size */
+    margin: 2px 0 0;
+  }
+
+  /* Value - Top right, still prominent */
+  .card__value {
+    font-size: 1rem; /* 16px */
+    top: 3px;
+    right: 4px;
+  }
+
+  /* Color Marker - Mobile size */
+  .card__color-marker {
+    padding: 2px 5px 2px 3px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .card__color-marker::before {
+    width: 6px;
+    height: 6px;
+  }
+
+  .card__color-marker-text {
+    font-size: 0.4375rem; /* 7px */
+  }
+
+  /* Type Badge - Compact but readable */
+  .card__type-badge {
+    font-size: 0.5625rem; /* 9px - minimum readable */
+    padding: 1px 4px;
+    top: 3px;
+    left: 3px;
+  }
+
+  /* Rule Hint - Compact version */
+  .card__rule-hint {
+    font-size: 0.5625rem; /* 9px */
+    padding: 2px 5px;
+    bottom: 4px;
+    max-width: 90%;
+  }
+}
+
+/* Extra small screens (below 480px) */
+@media (max-width: 480px) {
+  .card__emoji {
+    font-size: 1.25rem;
+    margin-top: 12px;
+  }
+
+  .card__name {
+    font-size: 0.625rem; /* 10px absolute minimum */
+  }
+
+  .card__value {
+    font-size: 0.875rem; /* 14px */
+  }
+}
+
+/* Accessibility */
+.card:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Performance Optimization */
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    will-change: transform, box-shadow;
+  }
+}

@@ -1,0 +1,309 @@
+/**
+ * CrabEffectModal Component CSS
+ * Modal for choosing a card from discard piles
+ */
+
+.crab-effect__piles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-xl);
+  margin-top: var(--spacing-lg);
+}
+
+/* Pile Container */
+.crab-effect__pile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border: 3px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-medium) var(--ease-out);
+}
+
+.crab-effect__pile--expanded {
+  grid-column: span 2;
+}
+
+.crab-effect__pile--empty {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.crab-effect__pile--locked {
+  opacity: 0.4;
+  border-color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  cursor: not-allowed;
+}
+
+.crab-effect__pile--chosen {
+  border-color: var(--primary-ocean);
+  box-shadow: 0 0 0 3px rgba(44, 95, 141, 0.2);
+}
+
+/* Pile Header */
+.crab-effect__pile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.crab-effect__pile-header:hover {
+  background: var(--primary-ocean);
+  color: white;
+}
+
+.crab-effect__pile-label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+}
+
+.crab-effect__pile-count {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.crab-effect__pile-expand-hint {
+  font-size: var(--font-size-sm);
+  color: var(--primary-ocean);
+  font-weight: var(--font-weight-medium);
+}
+
+.crab-effect__pile-locked-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.crab-effect__pile-header--locked {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.crab-effect__pile-header--locked:hover {
+  background: var(--bg-primary);
+  color: inherit;
+}
+
+.crab-effect__pile-header:hover .crab-effect__pile-count,
+.crab-effect__pile-header:hover .crab-effect__pile-expand-hint {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Card Preview (collapsed state) */
+.crab-effect__card-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  transition: transform var(--duration-fast);
+}
+
+.crab-effect__card-preview:hover {
+  transform: scale(1.05);
+}
+
+.crab-effect__pile-hint {
+  font-size: var(--font-size-sm);
+  color: var(--primary-ocean);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Cards Grid (expanded state) */
+.crab-effect__cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--spacing-md);
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+}
+
+.crab-effect__card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.crab-effect__card-item:hover {
+  border-color: var(--primary-ocean);
+  box-shadow: 0 0 0 4px rgba(44, 95, 141, 0.2), var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.crab-effect__card-item--hovered {
+  border-color: var(--primary-ocean);
+  box-shadow: 0 0 0 4px rgba(44, 95, 141, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.crab-effect__card-item--disabled {
+  opacity: 0.6;
+  cursor: wait;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(44, 95, 141, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(44, 95, 141, 0);
+  }
+}
+
+/* Focus state for accessibility */
+.crab-effect__card-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Card Info */
+.crab-effect__card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.crab-effect__card-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.crab-effect__card-value {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* Empty State */
+.crab-effect__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.crab-effect__empty-icon {
+  font-size: var(--font-size-4xl);
+  opacity: 0.5;
+}
+
+.crab-effect__empty-text {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Loading State */
+.crab-effect__loading {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  font-size: var(--font-size-lg);
+  color: var(--primary-ocean);
+  font-weight: var(--font-weight-medium);
+}
+
+/* All Empty Message */
+.crab-effect__all-empty {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: var(--status-warning-light);
+  border-radius: var(--radius-md);
+  color: var(--status-warning);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--spacing-lg);
+}
+
+/* Locked Message (when other pile was chosen) */
+.crab-effect__locked-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  min-height: 150px;
+  text-align: center;
+}
+
+.crab-effect__locked-icon {
+  font-size: var(--font-size-4xl);
+  opacity: 0.5;
+}
+
+.crab-effect__locked-text {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.crab-effect__locked-subtext {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Warning Banner */
+.crab-effect__warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+  border: 2px solid #f0ad4e;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: #856404;
+  margin-bottom: var(--spacing-lg);
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(240, 173, 78, 0);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .crab-effect__piles {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .crab-effect__pile--expanded {
+    grid-column: span 1;
+  }
+
+  .crab-effect__cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--spacing-sm);
+    max-height: 300px;
+  }
+
+  .crab-effect__pile {
+    padding: var(--spacing-md);
+  }
+}

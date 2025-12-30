@@ -1,0 +1,119 @@
+/**
+ * Modal Component Styles
+ * BEM Methodology
+ */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--spacing-md);
+}
+
+.modal__backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.modal__content {
+  position: relative;
+  background-color: var(--secondary-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: calc(var(--z-modal) + 1);
+}
+
+/* Sizes */
+
+.modal__content--small {
+  width: 100%;
+  max-width: 400px;
+}
+
+.modal__content--medium {
+  width: 100%;
+  max-width: 600px;
+}
+
+.modal__content--large {
+  width: 100%;
+  max-width: 800px;
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--tertiary-bg);
+}
+
+.modal__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal__close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  padding: 0;
+}
+
+.modal__close:hover {
+  background-color: var(--tertiary-bg);
+  color: var(--text-primary);
+}
+
+.modal__close:focus-visible {
+  outline: 2px solid var(--accent-bg);
+  outline-offset: 2px;
+}
+
+.modal__body {
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+}
+
+/* Mobile Responsive */
+
+@media (max-width: 768px) {
+  .modal {
+    padding: var(--spacing-sm);
+  }
+
+  .modal__content {
+    max-height: 95vh;
+  }
+
+  .modal__header,
+  .modal__body {
+    padding: var(--spacing-md);
+  }
+}

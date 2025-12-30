@@ -1,0 +1,316 @@
+/**
+ * SpectatorLobby Styles
+ * BEM Methodology
+ * Mobile-first responsive design
+ */
+
+.spectator-lobby {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.spectator-lobby__container {
+  width: 100%;
+  max-width: 700px;
+  background-color: var(--secondary-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--spacing-xl);
+  animation: slideInFromBottom 0.5s ease-out;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.spectator-lobby__header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.spectator-lobby__title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  line-height: var(--line-height-tight);
+}
+
+.spectator-lobby__subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Sections */
+.spectator-lobby__section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.spectator-lobby__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 2px solid var(--border);
+}
+
+/* AI Players Grid */
+.spectator-lobby__players {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+.spectator-lobby__player-card {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  border: 2px solid;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.spectator-lobby__player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.spectator-lobby__player-number {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.spectator-lobby__player-name-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border: 2px solid;
+  border-radius: var(--radius-md);
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.spectator-lobby__player-name-input:focus {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Difficulty Selector */
+.spectator-lobby__difficulty-selector {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: center;
+}
+
+.spectator-lobby__difficulty-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--primary-bg);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spectator-lobby__difficulty-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--accent);
+}
+
+.spectator-lobby__difficulty-btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+.spectator-lobby__difficulty-label {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Speed Selector */
+.spectator-lobby__speed-selector {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.spectator-lobby__speed-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--primary-bg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 80px;
+}
+
+.spectator-lobby__speed-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.spectator-lobby__speed-btn--active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
+  color: white;
+}
+
+.spectator-lobby__speed-emoji {
+  font-size: var(--font-size-2xl);
+}
+
+.spectator-lobby__speed-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Options */
+.spectator-lobby__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.spectator-lobby__option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--primary-bg);
+  transition: background var(--transition-fast);
+}
+
+.spectator-lobby__option:hover {
+  background: var(--tertiary-bg);
+}
+
+.spectator-lobby__option input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.spectator-lobby__option-text {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+}
+
+/* Error */
+.spectator-lobby__error {
+  padding: var(--spacing-md);
+  background: var(--status-error-light);
+  color: var(--status-error);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Actions */
+.spectator-lobby__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.spectator-lobby__start-btn {
+  width: 100%;
+  max-width: 300px;
+  font-size: var(--font-size-lg) !important;
+  padding: var(--spacing-md) var(--spacing-xl) !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.spectator-lobby__start-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+/* Footer */
+.spectator-lobby__footer {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.spectator-lobby__info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .spectator-lobby__container {
+    padding: var(--spacing-lg);
+    margin: var(--spacing-sm);
+  }
+
+  .spectator-lobby__title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .spectator-lobby__players {
+    grid-template-columns: 1fr;
+  }
+
+  .spectator-lobby__speed-selector {
+    gap: var(--spacing-xs);
+  }
+
+  .spectator-lobby__speed-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-width: 70px;
+  }
+
+  .spectator-lobby__speed-emoji {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 768px) {
+  .spectator-lobby__container {
+    padding: var(--spacing-xl);
+  }
+}

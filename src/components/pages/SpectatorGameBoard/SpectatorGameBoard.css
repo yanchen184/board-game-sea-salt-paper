@@ -1,0 +1,558 @@
+/**
+ * SpectatorGameBoard Styles
+ * BEM Methodology
+ * Spectator mode view for AI battles
+ */
+
+.spectator-game {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: var(--text-primary);
+}
+
+/* Loading State */
+.spectator-game--loading,
+.spectator-game--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.spectator-game__loading {
+  text-align: center;
+  color: white;
+}
+
+.spectator-game__loading-spinner {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--spacing-md);
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #667eea;
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spectator-game__error-content {
+  text-align: center;
+  color: white;
+  padding: var(--spacing-xl);
+}
+
+.spectator-game__error-content h2 {
+  margin-bottom: var(--spacing-md);
+  color: var(--status-error);
+}
+
+/* Spectator Banner */
+.spectator-game__banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+}
+
+.spectator-game__banner-icon {
+  font-size: var(--font-size-xl);
+}
+
+.spectator-game__banner-text {
+  letter-spacing: 0.05em;
+}
+
+.spectator-game__banner-paused {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  animation: pausePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pausePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Navigation */
+.spectator-game__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 2px solid var(--border);
+}
+
+.spectator-game__nav-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.spectator-game__round {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.spectator-game__target {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  background: var(--tertiary-bg);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+}
+
+.spectator-game__nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.spectator-game__current-turn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: var(--radius-lg);
+  border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.spectator-game__turn-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.spectator-game__turn-player {
+  font-weight: var(--font-weight-bold);
+  color: #667eea;
+}
+
+.spectator-game__turn-phase {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.spectator-game__nav-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Main Content */
+.spectator-game__main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  overflow: hidden;
+}
+
+/* Players Grid - 2x2 */
+.spectator-game__players-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  min-height: 0;
+}
+
+/* Player Area */
+.spectator-game__player-area {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-fast);
+  overflow: hidden;
+}
+
+.spectator-game__player-area--active {
+  border-color: #667eea;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+  animation: activeGlow 2s ease-in-out infinite;
+}
+
+@keyframes activeGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+  }
+}
+
+/* Player Header */
+.spectator-game__player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border);
+}
+
+.spectator-game__player-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.spectator-game__player-name {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+}
+
+.spectator-game__player-difficulty {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.spectator-game__player-scores {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.spectator-game__score-round {
+  color: var(--text-secondary);
+}
+
+.spectator-game__score-total {
+  font-weight: var(--font-weight-bold);
+  color: #667eea;
+}
+
+/* Player Hand */
+.spectator-game__player-hand {
+  flex: 1;
+  min-height: 80px;
+  overflow: hidden;
+}
+
+.spectator-game__hand-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.spectator-game__hand-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  justify-content: center;
+  align-items: center;
+}
+
+.spectator-game__card-wrapper {
+  transform: scale(0.7);
+  transform-origin: center;
+  transition: transform var(--transition-fast);
+}
+
+.spectator-game__card-wrapper:hover {
+  transform: scale(0.8);
+  z-index: 10;
+}
+
+/* Played Pairs */
+.spectator-game__played-pairs {
+  padding-top: var(--spacing-xs);
+  border-top: 1px solid var(--border);
+}
+
+.spectator-game__pairs-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.spectator-game__pairs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.spectator-game__pair {
+  display: flex;
+  gap: 2px;
+  padding: 2px 6px;
+  background: var(--tertiary-bg);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+}
+
+.spectator-game__pair-card {
+  color: var(--text-primary);
+}
+
+.spectator-game__pair-card + .spectator-game__pair-card::before {
+  content: '+';
+  margin: 0 2px;
+  color: var(--text-secondary);
+}
+
+/* Game Center */
+.spectator-game__center {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+}
+
+.spectator-game__deck-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.spectator-game__deck {
+  width: 80px;
+  height: 110px;
+  background: linear-gradient(135deg, #2C5F8D 0%, #1E4165 100%);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.spectator-game__deck-count {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.spectator-game__deck-label {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+.spectator-game__discard-piles {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+.spectator-game__discard-pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.spectator-game__discard-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.spectator-game__discard-empty {
+  width: 60px;
+  height: 84px;
+  background: var(--tertiary-bg);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.spectator-game__discard-pile .card {
+  transform: scale(0.6);
+  transform-origin: top center;
+}
+
+/* Action Log */
+.spectator-game__log {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Control Panel */
+.spectator-game__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 2px solid var(--border);
+  gap: var(--spacing-lg);
+}
+
+.spectator-game__speed-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.spectator-game__control-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.spectator-game__speed-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--primary-bg);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+}
+
+.spectator-game__speed-btn:hover:not(:disabled) {
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.spectator-game__speed-btn--active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
+  color: white;
+}
+
+.spectator-game__speed-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spectator-game__playback-controls {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+  .spectator-game__main {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  .spectator-game__center {
+    flex-direction: row;
+    justify-content: space-around;
+    max-height: 200px;
+  }
+
+  .spectator-game__deck-area {
+    flex-direction: row;
+  }
+
+  .spectator-game__log {
+    min-width: 250px;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .spectator-game__banner {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .spectator-game__nav {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .spectator-game__nav-left,
+  .spectator-game__nav-center {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .spectator-game__players-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+  }
+
+  .spectator-game__player-area {
+    padding: var(--spacing-sm);
+  }
+
+  .spectator-game__card-wrapper {
+    transform: scale(0.5);
+  }
+
+  .spectator-game__controls {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .spectator-game__speed-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .spectator-game__playback-controls {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .spectator-game__center {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .spectator-game__deck-area {
+    flex-direction: column;
+  }
+}
+
+/* Small screens - extra small cards */
+@media (max-width: 480px) {
+  .spectator-game__card-wrapper {
+    transform: scale(0.4);
+  }
+
+  .spectator-game__player-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .spectator-game__speed-btn {
+    padding: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+  }
+}

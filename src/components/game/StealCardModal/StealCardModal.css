@@ -1,0 +1,155 @@
+/* StealCardModal.css */
+
+.steal-card-modal {
+  padding: var(--spacing-md);
+  min-height: 200px;
+}
+
+/* Instruction text */
+.steal-card-modal__instruction {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.95rem;
+}
+
+/* Opponent selection view */
+.steal-card-modal__opponents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.steal-card-modal__opponent-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.steal-card-modal__opponent-card {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.steal-card-modal__opponent-card:hover {
+  background: var(--hover-bg);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.steal-card-modal__opponent-card:active {
+  transform: translateY(0);
+}
+
+.steal-card-modal__opponent-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.steal-card-modal__opponent-hand-count {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Card selection view */
+.steal-card-modal__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.steal-card-modal__card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) 0;
+}
+
+.steal-card-modal__card-back {
+  aspect-ratio: 2/3;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.steal-card-modal__card-back::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.05) 10px,
+    rgba(255, 255, 255, 0.05) 20px
+  );
+}
+
+.steal-card-modal__card-back:hover {
+  transform: translateY(-4px) scale(1.05);
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.steal-card-modal__card-back:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.steal-card-modal__card-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  z-index: 1;
+}
+
+.steal-card-modal__card-icon {
+  font-size: 2rem;
+  z-index: 1;
+}
+
+/* Actions */
+.steal-card-modal__actions {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .steal-card-modal__opponent-list {
+    grid-template-columns: 1fr;
+  }
+
+  .steal-card-modal__card-list {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+
+  .steal-card-modal__card-number {
+    font-size: 1rem;
+  }
+
+  .steal-card-modal__card-icon {
+    font-size: 1.5rem;
+  }
+}

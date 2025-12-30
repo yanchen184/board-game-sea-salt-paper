@@ -1,0 +1,145 @@
+/**
+ * PublicPairsArea Component Styles
+ * Displays all players' played pairs in a horizontal strip
+ */
+
+.public-pairs-area {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.public-pairs-area__header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.public-pairs-area__title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--neutral-white);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.public-pairs-area__content {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+/* Individual player's pairs section */
+.public-pairs-area__player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  min-width: 100px;
+}
+
+.public-pairs-area__player--current {
+  background: rgba(44, 95, 141, 0.3);
+  border: 1px solid var(--primary-ocean);
+}
+
+.public-pairs-area__player-name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--neutral-white);
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.public-pairs-area__ai-badge {
+  font-size: 0.5rem;
+  padding: 1px 4px;
+  background: var(--warning);
+  color: var(--text-primary);
+  border-radius: var(--radius-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Container for all pairs of one player */
+.public-pairs-area__pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  justify-content: center;
+}
+
+/* Single pair (two cards) */
+.public-pairs-area__pair {
+  display: flex;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Card wrapper with slight overlap */
+.public-pairs-area__card-wrapper {
+  margin-left: -8px;
+}
+
+.public-pairs-area__card-wrapper:first-child {
+  margin-left: 0;
+}
+
+.public-pairs-area__card {
+  transform: scale(0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.public-pairs-area__count {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .public-pairs-area {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .public-pairs-area__content {
+    gap: var(--spacing-sm);
+  }
+
+  .public-pairs-area__player {
+    min-width: 80px;
+    padding: var(--spacing-xs);
+  }
+
+  .public-pairs-area__card-wrapper {
+    margin-left: -12px;
+  }
+
+  .public-pairs-area__card {
+    transform: scale(0.75);
+  }
+}
+
+/* Animation for new pairs */
+@keyframes pairAdded {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.public-pairs-area__pair {
+  animation: pairAdded 0.3s ease-out;
+}

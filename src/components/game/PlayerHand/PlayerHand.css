@@ -1,0 +1,419 @@
+.player-hand {
+  position: relative;
+  padding: var(--spacing-xl) var(--spacing-lg);  /* 增加上下 padding */
+  background: var(--secondary-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  min-height: 280px;  /* 從 200px 增加到 280px */
+}
+
+.player-hand--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Horizontal mode for table layout */
+.player-hand--horizontal {
+  background: transparent;
+  box-shadow: none;
+  padding: var(--spacing-sm);
+  min-height: auto;
+}
+
+.player-hand--horizontal .player-hand__cards {
+  min-height: auto;
+  padding: 0;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  justify-content: flex-start;
+}
+
+.player-hand--horizontal .player-hand__card-wrapper {
+  --rotation-max: 0deg;
+  transform: none;
+  transition: all 0.2s ease-out;
+}
+
+/* Adaptive spacing based on card count */
+/* Sparse: 1-3 cards - full spacing with gaps */
+.player-hand--sparse.player-hand--horizontal .player-hand__card-wrapper {
+  margin-left: 16px;
+}
+
+.player-hand--sparse.player-hand--horizontal .player-hand__card-wrapper:first-child {
+  margin-left: 0;
+}
+
+/* Normal: 4-5 cards - minimal spacing */
+.player-hand--normal.player-hand--horizontal .player-hand__card-wrapper {
+  margin-left: 8px;
+}
+
+.player-hand--normal.player-hand--horizontal .player-hand__card-wrapper:first-child {
+  margin-left: 0;
+}
+
+/* Compact: 6-7 cards - slight overlap */
+.player-hand--compact.player-hand--horizontal .player-hand__card-wrapper {
+  margin-left: -5px;
+}
+
+.player-hand--compact.player-hand--horizontal .player-hand__card-wrapper:first-child {
+  margin-left: 0;
+}
+
+/* Dense: 8+ cards - moderate overlap */
+.player-hand--dense.player-hand--horizontal .player-hand__card-wrapper {
+  margin-left: -15px;
+}
+
+.player-hand--dense.player-hand--horizontal .player-hand__card-wrapper:first-child {
+  margin-left: 0;
+}
+
+/* Hover effect - lift card and add spacing */
+.player-hand--horizontal .player-hand__card-wrapper:hover {
+  transform: translateY(-20px) scale(1.08);
+  z-index: 20;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.player-hand--horizontal .player-hand__card-wrapper:first-child:hover {
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+.player-hand--horizontal .player-hand__selection-status {
+  position: static;
+  margin-top: var(--spacing-xs);
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+/* Empty state */
+.player-hand__empty-message {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.player-hand__empty-icon {
+  font-size: var(--text-4xl);
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.5;
+}
+
+/* Card container with fanned layout */
+.player-hand__cards {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+  position: relative;
+  min-height: 240px;  /* 從 180px 增加到 240px，給卡牌更多垂直空間 */
+  padding: var(--spacing-lg) 0;  /* 增加上下 padding */
+  flex-wrap: wrap;
+}
+
+/* Individual card wrapper with fan effect */
+.player-hand__card-wrapper {
+  --rotation-max: 3deg;
+
+  position: relative;
+  transition: all var(--transition-base) ease-out;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Calculate fan position based on card index */
+.player-hand__card-wrapper {
+  /* Calculate position from center */
+  --position-ratio: calc(
+    (var(--card-index) - (var(--total-cards) - 1) / 2) / var(--total-cards)
+  );
+
+  /* Slight rotation based on position for visual interest */
+  transform: rotate(calc(var(--position-ratio) * var(--rotation-max)));
+}
+
+/* Hover effect - lift card */
+.player-hand__card-wrapper:hover {
+  transform:
+    rotate(calc(var(--position-ratio) * var(--rotation-max)))
+    translateY(-50px)  /* 從 -30px 增加到 -50px，利用更大的空間 */
+    scale(1.05);
+  z-index: 10;
+}
+
+/* Dragging state */
+.player-hand__card-wrapper--dragging {
+  opacity: 0.5;
+  transform: rotate(0) scale(0.95);
+}
+
+/* The actual card */
+.player-hand__card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all var(--transition-base);
+}
+
+/* Selection status indicator */
+.player-hand__selection-status {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-md);
+  background: var(--accent);
+  color: var(--text-primary);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: slideInRight var(--transition-base);
+}
+
+.player-hand__selection-count {
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .player-hand__card-wrapper {
+    --rotation-max: 2deg;
+  }
+
+  .player-hand__card-wrapper:hover {
+    transform:
+      rotate(calc(var(--position-ratio) * var(--rotation-max)))
+      translateY(-20px)
+      scale(1.03);
+  }
+
+  .player-hand {
+    padding: var(--spacing-md);
+    min-height: 160px;
+  }
+
+  .player-hand__cards {
+    min-height: 140px;
+    gap: var(--spacing-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .player-hand__card-wrapper {
+    --rotation-max: 1deg;
+  }
+
+  .player-hand {
+    padding: var(--spacing-sm);
+    min-height: 140px;
+  }
+
+  .player-hand__cards {
+    min-height: 120px;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Animation for cards entering hand */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.player-hand__card-wrapper {
+  animation: cardEnter var(--transition-slow) ease-out;
+  animation-fill-mode: both;
+  animation-delay: calc(var(--card-index) * 50ms);
+}
+
+/* ==================== Color Stats Button and Panel ==================== */
+
+.player-hand__color-stats-container {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-md);
+  z-index: 100;
+}
+
+.player-hand__color-stats-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  transition: all 0.2s ease-out;
+}
+
+.player-hand__color-stats-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.player-hand__color-stats-btn--active {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.player-hand__color-stats-panel {
+  position: absolute;
+  top: calc(100% + var(--spacing-xs));
+  left: 0;
+  min-width: 180px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  animation: colorStatsPanelIn 0.2s ease-out;
+}
+
+@keyframes colorStatsPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.player-hand__color-stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--secondary-bg);
+  border-bottom: 1px solid var(--border-light);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.player-hand__color-stats-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: var(--text-md);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.player-hand__color-stats-close:hover {
+  background: var(--border-light);
+  color: var(--text-primary);
+}
+
+.player-hand__color-stats-list {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.player-hand__color-stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  transition: background 0.15s ease;
+}
+
+.player-hand__color-stat-item:hover {
+  background: var(--secondary-bg);
+  margin: 0 calc(-1 * var(--spacing-md));
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+
+.player-hand__color-stat-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.player-hand__color-stat-name {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.player-hand__color-stat-count {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--stat-color, var(--text-primary));
+  min-width: 24px;
+  text-align: right;
+}
+
+.player-hand__color-stats-total {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--secondary-bg);
+  border-top: 1px solid var(--border-light);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Mobile adjustments for color stats */
+@media (max-width: 768px) {
+  .player-hand__color-stats-container {
+    top: var(--spacing-xs);
+    left: var(--spacing-sm);
+  }
+
+  .player-hand__color-stats-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .player-hand__color-stats-panel {
+    min-width: 150px;
+  }
+
+  .player-hand__color-stat-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .player-hand__color-stat-name {
+    font-size: 0.75rem;
+  }
+
+  .player-hand__color-stat-count {
+    font-size: 0.875rem;
+  }
+}
+
+/* Horizontal mode adjustments */
+.player-hand--horizontal .player-hand__color-stats-container {
+  position: static;
+  margin-top: var(--spacing-sm);
+}
+
+.player-hand--horizontal .player-hand__color-stats-panel {
+  position: absolute;
+  bottom: calc(100% + var(--spacing-xs));
+  top: auto;
+}

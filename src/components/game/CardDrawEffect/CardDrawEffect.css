@@ -1,0 +1,825 @@
+/**
+ * CardDrawEffect Component Styles
+ *
+ * Premium card draw animation with multi-phase effects
+ * Ocean theme: bubbles, waves, light rays, shimmer
+ *
+ * Animation Phases:
+ * - anticipation (0-400ms): deck glows, particles spawn
+ * - buildup (400-800ms): energy spirals, light rays
+ * - launch (800-1200ms): card shoots up, 3D flip, explosion
+ * - reveal (1200-2000ms): card settles, shimmer effect
+ */
+
+/* ==================== Container ==================== */
+
+.card-draw-effect {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-max);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Click hint */
+.card-draw-effect__hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.1em;
+  user-select: none;
+  pointer-events: none;
+  z-index: 100;
+  animation: hintFadeIn 0.8s ease-out 0.5s both;
+}
+
+@keyframes hintFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Skipping phase - quick fade out */
+.card-draw-effect--skipping {
+  animation: quickFadeOut 0.3s ease-out forwards;
+}
+
+.card-draw-effect--skipping * {
+  animation-play-state: paused !important;
+}
+
+@keyframes quickFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ==================== Background Overlay ==================== */
+
+.card-draw-effect__overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out);
+}
+
+/* Showcase starts immediately - overlay fades in */
+.card-draw-effect--showcase .card-draw-effect__overlay {
+  opacity: 0.75;
+  animation: overlayFadeIn 300ms ease-out forwards;
+}
+
+@keyframes overlayFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 0.75; }
+}
+
+.card-draw-effect--toHand .card-draw-effect__overlay {
+  opacity: 0.5;
+  transition: opacity 300ms ease-out;
+}
+
+/* ==================== Energy Rings ==================== */
+
+.card-draw-effect__energy-ring {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+}
+
+.card-draw-effect__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  opacity: 0;
+}
+
+.card-draw-effect__ring--1 {
+  border-color: var(--effect-glow-primary);
+}
+
+.card-draw-effect__ring--2 {
+  border-color: var(--effect-glow-secondary);
+  transform: scale(0.8);
+}
+
+.card-draw-effect__ring--3 {
+  border-color: var(--effect-glow-gold);
+  transform: scale(0.6);
+}
+
+/* Showcase - Rings appear around card and spin */
+.card-draw-effect--showcase .card-draw-effect__ring {
+  opacity: 1;
+}
+
+.card-draw-effect--showcase .card-draw-effect__ring--1 {
+  animation: ringPulse 800ms ease-out forwards, ringSpin 1000ms linear infinite 800ms;
+}
+
+.card-draw-effect--showcase .card-draw-effect__ring--2 {
+  animation: ringPulse 800ms ease-out 100ms forwards, ringSpinReverse 800ms linear infinite 900ms;
+}
+
+.card-draw-effect--showcase .card-draw-effect__ring--3 {
+  animation: ringPulse 800ms ease-out 200ms forwards, ringSpin 600ms linear infinite 1000ms;
+}
+
+/* ToHand - Rings fade out */
+.card-draw-effect--toHand .card-draw-effect__ring {
+  animation: ringExplode 400ms var(--ease-explosive) forwards;
+}
+
+@keyframes ringPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes ringSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ringSpinReverse {
+  from {
+    transform: scale(0.8) rotate(360deg);
+  }
+  to {
+    transform: scale(0.8) rotate(0deg);
+  }
+}
+
+@keyframes ringGlow {
+  0% {
+    box-shadow: 0 0 10px var(--effect-glow-secondary),
+                inset 0 0 10px var(--effect-glow-secondary);
+  }
+  100% {
+    box-shadow: 0 0 30px var(--effect-glow-secondary),
+                inset 0 0 20px var(--effect-glow-secondary);
+  }
+}
+
+@keyframes ringExplode {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+/* ==================== Light Rays ==================== */
+
+.card-draw-effect__rays {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  opacity: 0;
+}
+
+.card-draw-effect__ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--effect-glow-secondary) 0%,
+    transparent 100%
+  );
+  transform-origin: left center;
+  transform: rotate(calc(var(--ray-index) * 45deg));
+  opacity: 0;
+}
+
+/* Light rays extend during showcase */
+.card-draw-effect--showcase .card-draw-effect__rays {
+  opacity: 1;
+}
+
+.card-draw-effect--showcase .card-draw-effect__ray {
+  animation: rayExtend 400ms var(--ease-explosive) forwards;
+  animation-delay: calc(var(--ray-index) * 50ms + 200ms);
+}
+
+/* Rays flash and fade on toHand */
+.card-draw-effect--toHand .card-draw-effect__ray {
+  animation: rayFlash 200ms ease-out forwards;
+}
+
+@keyframes rayExtend {
+  0% {
+    opacity: 0;
+    width: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+    width: 250px;
+  }
+}
+
+@keyframes rayFlash {
+  0% {
+    opacity: 1;
+    width: 250px;
+    background: linear-gradient(
+      90deg,
+      var(--effect-glow-white) 0%,
+      transparent 100%
+    );
+  }
+  100% {
+    opacity: 0;
+    width: 500px;
+  }
+}
+
+/* ==================== Particles ==================== */
+
+.card-draw-effect__particles {
+  position: absolute;
+  inset: 0;
+}
+
+.card-draw-effect__particle {
+  position: absolute;
+  left: var(--particle-x);
+  top: var(--particle-y);
+  width: var(--particle-size);
+  height: var(--particle-size);
+  border-radius: 50%;
+  opacity: 0;
+  animation-delay: var(--particle-delay);
+  animation-duration: var(--particle-duration);
+  animation-fill-mode: forwards;
+}
+
+/* Bubble Particles - float up like underwater bubbles */
+.card-draw-effect__particle--bubble {
+  background: var(--particle-bubble);
+  box-shadow: 0 0 6px var(--particle-bubble),
+              inset 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+/* Particles animate during showcase phase */
+.card-draw-effect--showcase .card-draw-effect__particle--bubble {
+  animation-name: bubbleFloat;
+}
+
+/* Sparkle Particles - orbit around the card */
+.card-draw-effect__particle--sparkle {
+  background: var(--particle-sparkle);
+  box-shadow: 0 0 8px var(--particle-sparkle);
+}
+
+.card-draw-effect--showcase .card-draw-effect__particle--sparkle {
+  animation-name: sparkleOrbit;
+}
+
+/* Explosion Particles - burst outward around card */
+.card-draw-effect__particle--explosion {
+  background: var(--effect-glow-white);
+  box-shadow: 0 0 10px var(--effect-glow-secondary);
+}
+
+.card-draw-effect--showcase .card-draw-effect__particle--explosion {
+  animation-name: particleExplode;
+  animation-duration: 600ms;
+}
+
+@keyframes bubbleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-150px) scale(0.3);
+  }
+}
+
+@keyframes sparkleOrbit {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--particle-angle)) translateX(0) scale(0);
+  }
+  30% {
+    opacity: 1;
+    transform: rotate(var(--particle-angle)) translateX(60px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--particle-angle) + 180deg)) translateX(120px) scale(0);
+  }
+}
+
+@keyframes particleExplode {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc((var(--particle-x) - 50%) * 4),
+      calc((var(--particle-y) - 35%) * 4)
+    ) scale(0);
+  }
+}
+
+/* ==================== Motion Trail ==================== */
+
+.card-draw-effect__trail {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.card-draw-effect__trail-segment {
+  position: absolute;
+  width: 80px;
+  height: 112px;
+  background: linear-gradient(
+    180deg,
+    var(--effect-glow-secondary) 0%,
+    transparent 100%
+  );
+  border-radius: var(--radius-card);
+  opacity: 0;
+  filter: blur(6px);
+}
+
+/* Trail appears when card flies to hand */
+.card-draw-effect--toHand .card-draw-effect__trail-segment {
+  animation: trailFollow 600ms var(--ease-out) forwards;
+  animation-delay: calc(var(--trail-index) * 50ms);
+}
+
+@keyframes trailFollow {
+  0% {
+    opacity: calc(0.6 - (var(--trail-index) / var(--trail-total) * 0.5));
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  40% {
+    opacity: calc(0.4 - (var(--trail-index) / var(--trail-total) * 0.3));
+  }
+  100% {
+    opacity: 0;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ==================== Card Container ==================== */
+
+.card-draw-effect__card-container {
+  position: absolute;
+  left: var(--start-x);
+  top: var(--start-y);
+  transform: translate(-50%, -50%);
+  perspective: 1200px;
+}
+
+/* Showcase - Card appears at center, then drifts down slowly with gentle wobble */
+.card-draw-effect--showcase .card-draw-effect__card-container {
+  left: 50%;
+  top: 45%;
+  animation: cardInstantReveal 2000ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Phase 5: ToHand - Card flies from center to hand position */
+.card-draw-effect--toHand .card-draw-effect__card-container {
+  animation: cardToHand 600ms var(--ease-anticipation) forwards;
+}
+
+/* Card appears instantly at center with dramatic pop-in, then drifts down with slight tilt */
+@keyframes cardInstantReveal {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotateY(180deg) rotateZ(0deg);
+    opacity: 0;
+  }
+  25% {
+    transform: translate(-50%, -50%) scale(2.0) rotateY(0deg) rotateZ(-2deg);
+    opacity: 1;
+  }
+  40% {
+    transform: translate(-50%, -45%) scale(1.85) rotateY(0deg) rotateZ(1.5deg);
+  }
+  55% {
+    transform: translate(-50%, -40%) scale(1.8) rotateY(0deg) rotateZ(-1deg);
+  }
+  70% {
+    transform: translate(-50%, -35%) scale(1.8) rotateY(0deg) rotateZ(0.5deg);
+  }
+  85% {
+    transform: translate(-50%, -30%) scale(1.8) rotateY(0deg) rotateZ(-0.3deg);
+  }
+  100% {
+    transform: translate(-50%, -25%) scale(1.8) rotateY(0deg) rotateZ(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes cardToHand {
+  0% {
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -25%) scale(1.8) rotateX(0deg) rotateY(0deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -30%) scale(1.4) rotateX(15deg) rotateY(5deg);
+  }
+  60% {
+    transform: translate(-50%, -40%) scale(1.0) rotateX(10deg) rotateY(-3deg);
+  }
+  100% {
+    left: var(--end-x);
+    top: var(--end-y);
+    transform: translate(-50%, -50%) scale(0.8) rotateX(0deg) rotateY(0deg);
+    opacity: 0.6;
+  }
+}
+
+/* ==================== Card Wrapper ==================== */
+
+.card-draw-effect__card-wrapper {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* Card Glow - radiant light behind the card */
+.card-draw-effect__card-glow {
+  position: absolute;
+  inset: -30px;
+  border-radius: calc(var(--radius-card) + 30px);
+  background: radial-gradient(
+    ellipse at center,
+    var(--effect-glow-secondary) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  filter: blur(20px);
+  z-index: -1;
+}
+
+/* Glow activates immediately with card appearance */
+.card-draw-effect--showcase .card-draw-effect__card-glow {
+  opacity: calc(0.8 * var(--glow-intensity));
+  animation: glowAppear 400ms ease-out forwards, glowPulse 400ms ease-in-out infinite alternate 400ms;
+}
+
+.card-draw-effect--toHand .card-draw-effect__card-glow {
+  opacity: calc(0.5 * var(--glow-intensity));
+  animation: glowPulse 400ms ease-in-out infinite alternate;
+}
+
+@keyframes glowAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: calc(0.8 * var(--glow-intensity));
+    transform: scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    transform: scale(1);
+    opacity: calc(0.4 * var(--glow-intensity));
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: calc(0.8 * var(--glow-intensity));
+  }
+}
+
+/* Shimmer Overlay - sweeping light effect */
+.card-draw-effect__shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.9) 50%,
+    transparent 60%
+  );
+  background-size: 250% 100%;
+  opacity: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Shimmer plays right after card appears */
+.card-draw-effect--showcase .card-draw-effect__shimmer {
+  opacity: 1;
+  animation: shimmerSweep 800ms ease-in-out 400ms forwards;
+}
+
+.card-draw-effect--toHand .card-draw-effect__shimmer {
+  opacity: 0;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    background-position: 250% 0;
+  }
+  100% {
+    background-position: -250% 0;
+  }
+}
+
+/* ==================== Card Label ==================== */
+
+.card-draw-effect__card-label {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Label appears right after card settles */
+.card-draw-effect--showcase .card-draw-effect__card-label {
+  opacity: 1;
+  animation: labelFadeIn 400ms ease-out 300ms forwards;
+}
+
+.card-draw-effect--toHand .card-draw-effect__card-label {
+  opacity: 0;
+  animation: labelFadeOut 200ms ease-out forwards;
+}
+
+.card-draw-effect__card-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow:
+    0 0 10px var(--effect-glow-secondary),
+    0 0 20px var(--effect-glow-secondary),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+.card-draw-effect__card-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--effect-glow-gold);
+  text-shadow:
+    0 0 8px var(--effect-glow-gold),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes labelFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes labelFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Legendary cards get special label treatment */
+.card-draw-effect--legendary .card-draw-effect__card-name {
+  color: var(--effect-glow-gold);
+  text-shadow:
+    0 0 10px var(--effect-glow-gold),
+    0 0 20px var(--effect-glow-gold),
+    0 0 30px rgba(255, 215, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ==================== Shockwave ==================== */
+
+.card-draw-effect__shockwave {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 4px solid var(--effect-glow-secondary);
+  opacity: 0;
+}
+
+/* Shockwave expands when card appears */
+.card-draw-effect--showcase .card-draw-effect__shockwave {
+  animation: shockwaveExpand 600ms var(--ease-out) forwards;
+  animation-delay: 100ms;
+}
+
+@keyframes shockwaveExpand {
+  0% {
+    opacity: 1;
+    width: 50px;
+    height: 50px;
+    border-width: 4px;
+  }
+  100% {
+    opacity: 0;
+    width: 800px;
+    height: 800px;
+    border-width: 1px;
+  }
+}
+
+/* ==================== Rarity Variants ==================== */
+
+/* Common - Standard ocean blue */
+.card-draw-effect--common {
+  --effect-glow-primary: #2C5F8D;
+  --effect-glow-secondary: #4A9BD9;
+}
+
+/* Rare - Enhanced cyan/teal with stronger glow */
+.card-draw-effect--rare {
+  --effect-glow-primary: #00A8CC;
+  --effect-glow-secondary: #00D4FF;
+  --particle-sparkle: rgba(0, 212, 255, 0.9);
+}
+
+.card-draw-effect--rare .card-draw-effect__shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(0, 212, 255, 0.5) 45%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(0, 212, 255, 0.5) 55%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+}
+
+/* Legendary - Gold/white premium effect */
+.card-draw-effect--legendary {
+  --effect-glow-primary: #FFD700;
+  --effect-glow-secondary: #FFF8DC;
+  --particle-sparkle: rgba(255, 215, 0, 0.9);
+}
+
+.card-draw-effect--legendary .card-draw-effect__ring {
+  border-width: 4px;
+}
+
+.card-draw-effect--legendary .card-draw-effect__shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(255, 215, 0, 0.4) 35%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 215, 0, 0.4) 65%,
+    transparent 75%
+  );
+  background-size: 250% 100%;
+}
+
+.card-draw-effect--legendary .card-draw-effect__card-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 215, 0, 0.9) 0%,
+    rgba(255, 248, 220, 0.5) 40%,
+    transparent 70%
+  );
+}
+
+/* ==================== Responsive ==================== */
+
+@media (max-width: 768px) {
+  .card-draw-effect__energy-ring {
+    width: 150px;
+    height: 150px;
+  }
+
+  .card-draw-effect__rays {
+    width: 350px;
+    height: 350px;
+  }
+
+  .card-draw-effect__ray {
+    width: 175px;
+  }
+
+  .card-draw-effect__trail-segment {
+    width: 60px;
+    height: 84px;
+  }
+
+  @keyframes cardLaunch {
+    0% {
+      transform: translate(-50%, -50%) scale(0.3) rotateX(0deg) rotateY(180deg);
+    }
+    100% {
+      transform: translate(-50%, -150%) scale(1.1) rotateX(-15deg) rotateY(90deg);
+    }
+  }
+
+  @keyframes cardReveal {
+    0% {
+      transform: translate(-50%, -150%) scale(1.1) rotateX(-15deg) rotateY(90deg);
+    }
+    30% {
+      transform: translate(-50%, -80%) scale(1.2) rotateX(0deg) rotateY(0deg);
+    }
+    50% {
+      transform: translate(-50%, -80%) scale(1.2) rotateX(0deg) rotateY(0deg);
+    }
+    100% {
+      left: var(--end-x);
+      top: var(--end-y);
+      transform: translate(-50%, -50%) scale(0.9) rotateX(0deg) rotateY(0deg);
+    }
+  }
+}
+
+/* ==================== Accessibility ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .card-draw-effect__ring,
+  .card-draw-effect__ray,
+  .card-draw-effect__particle,
+  .card-draw-effect__trail-segment,
+  .card-draw-effect__card-container,
+  .card-draw-effect__card-glow,
+  .card-draw-effect__shimmer,
+  .card-draw-effect__shockwave {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Just show the card instantly at final position */
+  .card-draw-effect--launch .card-draw-effect__card-container,
+  .card-draw-effect--reveal .card-draw-effect__card-container {
+    left: var(--end-x);
+    top: var(--end-y);
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  .card-draw-effect__overlay {
+    opacity: 0.3 !important;
+  }
+}

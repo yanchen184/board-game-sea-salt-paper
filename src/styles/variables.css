@@ -1,0 +1,349 @@
+/**
+ * Sea Salt & Paper - Design System Variables
+ * Complete CSS custom properties for the entire application
+ * Using BGA-inspired modern board game aesthetic
+ */
+
+:root {
+  /* ==================== Color Palette ==================== */
+
+  /* Primary Colors - Ocean Theme */
+  --primary-ocean: #2C5F8D;
+  --primary-ocean-dark: #1E4165;
+  --primary-ocean-light: #4A7BA7;
+  --primary-ocean-pale: #E8F2F9;
+
+  /* Secondary Colors - Sand Theme */
+  --secondary-sand: #F5E6D3;
+  --secondary-sand-dark: #E8D4B8;
+  --secondary-sand-light: #FAF4ED;
+
+  /* Accent Colors - Coral */
+  --accent-coral: #E74C3C;
+  --accent-coral-dark: #C0392B;
+  --accent-coral-light: #EC7063;
+
+  /* Game Card Colors */
+  --card-blue: #3498DB;            /* Water creatures */
+  --card-red: #E74C3C;             /* Fire/warm creatures */
+  --card-yellow: #F1C40F;          /* Sun/beach creatures */
+  --card-purple: #9B59B6;          /* Mystical creatures */
+
+  /* Card Color Light Variants (backgrounds) */
+  --card-blue-light: #EBF5FB;
+  --card-red-light: #FADBD8;
+  --card-yellow-light: #FCF3CF;
+  --card-purple-light: #EBDEF0;
+
+  /* Status Colors */
+  --status-success: #27AE60;
+  --status-success-light: #D5F4E6;
+  --status-warning: #F39C12;
+  --status-warning-light: #FCF3CF;
+  --status-error: #E74C3C;
+  --status-error-light: #FADBD8;
+  --status-info: #3498DB;
+  --status-info-light: #EBF5FB;
+
+  /* Neutral Colors */
+  --neutral-white: #FFFFFF;
+  --neutral-gray-100: #F8F9FA;
+  --neutral-gray-200: #E9ECEF;
+  --neutral-gray-300: #DEE2E6;
+  --neutral-gray-400: #CED4DA;
+  --neutral-gray-500: #ADB5BD;
+  --neutral-gray-600: #6C757D;
+  --neutral-gray-700: #495057;
+  --neutral-gray-800: #343A40;
+  --neutral-gray-900: #212529;
+
+  /* Text Colors */
+  --text-primary: #212529;
+  --text-secondary: #6C757D;
+  --text-light: #ADB5BD;
+  --text-inverse: #FFFFFF;
+  --text-ocean: var(--primary-ocean);
+
+  /* Background Colors */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: var(--secondary-sand-light);
+  --bg-tertiary: var(--neutral-gray-100);
+  --bg-ocean: var(--primary-ocean-pale);
+  --bg-game-board: linear-gradient(135deg, var(--primary-ocean-pale) 0%, var(--secondary-sand-light) 100%);
+  --card-bg: var(--neutral-gray-100);
+
+  /* Game Table Colors - Board Game Style */
+  --bg-game-table: radial-gradient(ellipse at center, #1a472a 0%, #0d2818 100%);
+  --table-felt: #1a5f3c;
+  --table-felt-light: #2a7a4c;
+  --table-felt-dark: #0d3d1f;
+  --table-border: #8b6914;
+  --table-border-dark: #5a4510;
+  --table-shadow: rgba(0, 0, 0, 0.4);
+
+  /* Player Seat Colors */
+  --seat-empty-border: rgba(255, 255, 255, 0.2);
+  --seat-empty-bg: rgba(0, 0, 0, 0.1);
+  --seat-active-glow: rgba(255, 215, 0, 0.5);
+  --seat-my-glow: rgba(100, 200, 255, 0.4);
+
+  /* ==================== Typography ==================== */
+
+  /* Font Families */
+  --font-primary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Fira Code', 'Courier New', monospace;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+  --font-size-5xl: 3rem;       /* 48px */
+
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+
+  /* ==================== Spacing (8px Grid) ==================== */
+
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-16: 4rem;     /* 64px */
+  --spacing-20: 5rem;     /* 80px */
+  --spacing-24: 6rem;     /* 96px */
+
+  /* ==================== Layout ==================== */
+
+  /* Container Widths */
+  --max-width-xs: 20rem;    /* 320px */
+  --max-width-sm: 40rem;    /* 640px */
+  --max-width-md: 48rem;    /* 768px */
+  --max-width-lg: 64rem;    /* 1024px */
+  --max-width-xl: 80rem;    /* 1280px */
+  --max-width-2xl: 96rem;   /* 1536px */
+
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Card Dimensions */
+  --card-width: 150px;
+  --card-height: 210px;
+  --card-width-mobile: 100px;
+  --card-height-mobile: 140px;
+  --card-aspect-ratio: 0.714;
+
+  /* Header Heights */
+  --header-height: 64px;
+  --header-height-mobile: 56px;
+
+  /* ==================== Borders & Radius ==================== */
+
+  /* Border Widths */
+  --border-thin: 1px;
+  --border-medium: 2px;
+  --border-thick: 4px;
+
+  /* Border Colors */
+  --border-light: var(--neutral-gray-300);
+  --border-medium: var(--neutral-gray-400);
+  --border-dark: var(--neutral-gray-600);
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;   /* Fully rounded */
+  --radius-card: 0.75rem;  /* Standard card radius */
+
+  /* ==================== Shadows ==================== */
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.25);
+
+  /* Component Shadows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+  /* ==================== Z-Index Scale ==================== */
+
+  --z-base: 1;
+  --z-card: 10;
+  --z-card-hover: 20;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-popover: 500;
+  --z-tooltip: 600;
+  --z-toast: 700;
+  --z-max: 9999;
+
+  /* ==================== Animation ==================== */
+
+  /* Timing Functions */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-medium: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 700ms;
+
+  /* Transitions */
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-medium: var(--duration-medium) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
+  --transition-all: all var(--duration-medium) var(--ease-out);
+
+  /* ==================== Component Aliases ==================== */
+
+  /* Common component color aliases for easier use */
+  --primary-bg: var(--bg-primary);
+  --secondary-bg: var(--bg-secondary);
+  --tertiary-bg: var(--bg-tertiary);
+  --accent-bg: var(--primary-ocean);
+
+  --accent: var(--primary-ocean);
+  --info: var(--status-info);
+  --success: var(--status-success);
+  --warning: var(--status-warning);
+  --danger: var(--status-error);
+  --error: var(--status-error);
+
+  --border: var(--border-light);
+
+  /* Spacing aliases */
+  --spacing-xs: var(--spacing-2);
+  --spacing-sm: var(--spacing-3);
+  --spacing-md: var(--spacing-4);
+  --spacing-lg: var(--spacing-6);
+  --spacing-xl: var(--spacing-8);
+  --spacing-2xl: var(--spacing-12);
+
+  /* Text size aliases */
+  --text-xs: var(--font-size-xs);
+  --text-sm: var(--font-size-sm);
+  --text-base: var(--font-size-base);
+  --text-md: var(--font-size-base);
+  --text-lg: var(--font-size-lg);
+  --text-xl: var(--font-size-xl);
+  --text-2xl: var(--font-size-2xl);
+  --text-3xl: var(--font-size-3xl);
+  --text-4xl: var(--font-size-4xl);
+
+  /* Font family alias */
+  --font-family-base: var(--font-primary);
+
+  /* Transition aliases */
+  --transition-base: var(--transition-medium);
+
+  /* ==================== Game Table ==================== */
+
+  /* 桌遊牌桌背景 */
+  --bg-game-table: radial-gradient(ellipse at center, #1a472a 0%, #0d2818 100%);
+  --table-felt: #1a5f3c;
+  --table-border: #8b6914;
+  --table-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  /* ==================== Misc ==================== */
+
+  /* Opacity Levels */
+  --opacity-disabled: 0.5;
+  --opacity-hover: 0.8;
+  --opacity-active: 0.6;
+
+  /* Focus Ring */
+  --focus-ring-width: 3px;
+  --focus-ring-color: var(--primary-ocean);
+  --focus-ring-offset: 2px;
+
+  /* ==================== Card Draw Effect ==================== */
+
+  /* Effect Glow Colors */
+  --effect-glow-primary: #2C5F8D;
+  --effect-glow-secondary: #00D4FF;
+  --effect-glow-gold: #FFD700;
+  --effect-glow-white: rgba(255, 255, 255, 0.9);
+
+  /* Particle Colors */
+  --particle-bubble: rgba(100, 200, 255, 0.6);
+  --particle-sparkle: rgba(255, 215, 0, 0.8);
+  --particle-foam: rgba(255, 255, 255, 0.7);
+
+  /* Effect Timing */
+  --draw-duration-anticipation: 400ms;
+  --draw-duration-buildup: 400ms;
+  --draw-duration-launch: 400ms;
+  --draw-duration-reveal: 800ms;
+  --draw-duration-total: 2000ms;
+
+  /* Effect Easings */
+  --ease-explosive: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-anticipation: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-dramatic: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+  /* Effect Sizes */
+  --particle-size-sm: 4px;
+  --particle-size-md: 8px;
+  --particle-size-lg: 12px;
+  --glow-radius-sm: 20px;
+  --glow-radius-md: 40px;
+  --glow-radius-lg: 80px;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0.01ms;
+    --duration-fast: 0.01ms;
+    --duration-medium: 0.01ms;
+    --duration-slow: 0.01ms;
+    --duration-slower: 0.01ms;
+  }
+}

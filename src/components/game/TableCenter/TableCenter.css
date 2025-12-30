@@ -1,0 +1,46 @@
+.table-center {
+  grid-area: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  position: relative;
+}
+
+.table-center__pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.table-center__pile--left,
+.table-center__pile--right {
+  flex-shrink: 0;
+}
+
+.table-center__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  min-width: 250px;
+}
+
+/* 響應式調整 */
+@media (max-width: 900px) {
+  .table-center {
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .table-center {
+    gap: var(--spacing-md);
+  }
+
+  .table-center__main {
+    min-width: 180px;
+  }
+}

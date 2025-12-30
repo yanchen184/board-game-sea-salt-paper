@@ -1,0 +1,207 @@
+/**
+ * HomePage Styles
+ * BEM Methodology
+ */
+
+.home-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+}
+
+.home-page__container {
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--secondary-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--spacing-2xl);
+  animation: slideInFromBottom 0.5s ease-out;
+}
+
+.home-page__header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.home-page__title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  line-height: var(--line-height-tight);
+}
+
+.home-page__subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.home-page__player-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--primary-bg);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+}
+
+.home-page__player-name-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.home-page__player-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.home-page__player-name-text {
+  font-size: var(--font-size-xl);
+  color: var(--accent);
+  font-weight: var(--font-weight-bold);
+  flex: 1;
+  text-align: center;
+}
+
+.home-page__player-name-edit {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.home-page__player-name-edit input {
+  flex: 1;
+}
+
+.home-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.home-page__action-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.home-page__section-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.home-page__button {
+  width: 100%;
+}
+
+.home-page__input {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: var(--font-weight-semibold);
+}
+
+.home-page__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+}
+
+.home-page__divider::before,
+.home-page__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--tertiary-bg);
+}
+
+.home-page__divider-text {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.home-page__footer {
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--tertiary-bg);
+  text-align: center;
+}
+
+.home-page__info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.home-page__tutorial-link {
+  display: inline-block;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--accent);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  background: rgba(78, 205, 196, 0.1);
+  transition: all var(--transition-fast);
+}
+
+.home-page__tutorial-link:hover {
+  background: rgba(78, 205, 196, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Spectator Mode Section */
+.home-page__spectator-section {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--tertiary-bg);
+  text-align: center;
+}
+
+.home-page__button--spectator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.home-page__button--spectator:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.home-page__spectator-desc {
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .home-page__container {
+    padding: var(--spacing-xl);
+  }
+
+  .home-page__title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .home-page__subtitle {
+    font-size: var(--font-size-base);
+  }
+}

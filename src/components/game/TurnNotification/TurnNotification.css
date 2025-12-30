@@ -1,0 +1,144 @@
+/* TurnNotification Component Styles */
+/* Full-screen subtle semi-transparent text notification */
+/* Click anywhere to dismiss */
+
+.turn-notification {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  cursor: pointer;
+  animation: notificationFadeIn 0.5s ease-out forwards;
+}
+
+/* Main Text */
+.turn-notification__text {
+  font-size: clamp(4rem, 15vw, 12rem);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.12);
+  text-shadow:
+    0 0 80px rgba(255, 255, 255, 0.05),
+    0 0 120px rgba(255, 255, 255, 0.03);
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  animation: textPulse 1.5s ease-in-out infinite;
+}
+
+/* Hint text */
+.turn-notification__hint {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.1em;
+  user-select: none;
+  pointer-events: none;
+  animation: hintFadeIn 0.8s ease-out 0.5s both;
+}
+
+@keyframes hintFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in animation */
+@keyframes notificationFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Subtle pulse animation */
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+/* Fading out state */
+.turn-notification--fading-out {
+  animation: notificationFadeOut 0.5s ease-out forwards;
+}
+
+.turn-notification--fading-out .turn-notification__text {
+  animation: none;
+}
+
+.turn-notification--fading-out .turn-notification__hint {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes notificationFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .turn-notification__text {
+    font-size: clamp(2.5rem, 12vw, 5rem);
+    letter-spacing: 0.1em;
+  }
+
+  .turn-notification__hint {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .turn-notification__text {
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    letter-spacing: 0.08em;
+  }
+
+  .turn-notification__hint {
+    font-size: 0.75rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .turn-notification,
+  .turn-notification__text,
+  .turn-notification__hint {
+    animation: none !important;
+  }
+
+  .turn-notification {
+    opacity: 1;
+  }
+
+  .turn-notification__hint {
+    opacity: 1;
+  }
+
+  .turn-notification--fading-out {
+    opacity: 0;
+  }
+}
