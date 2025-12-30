@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import PropTypes from 'prop-types'
 import Card from '../../common/Card/Card'
 import Button from '../../common/Button/Button'
@@ -13,8 +13,15 @@ import './RoundSettlement.css'
  * Animation Phases:
  * 0. Intro - Title and declarer announcement
  * 1-N. Player reveals - Each player's cards flip and score calculated
- * N+1. Ranking - Final ranking with podium display
- * N+2. Outro - Continue button
+ * N+1. Score Transition - Animated counting from old total to new total
+ * N+2. Ranking - Final ranking with podium display
+ * N+3. Outro - Continue button
+ *
+ * Score Animation Features:
+ * - Counting animation (number rolling) for score transitions
+ * - Green highlight for score gains
+ * - Red highlight for score losses (declare failure)
+ * - oldScore -> newScore visual transition
  */
 
 // Animation phase constants
@@ -22,6 +29,7 @@ const PHASE = {
   INTRO: 'intro',
   PLAYER_REVEAL: 'player_reveal',
   SCORE_CALC: 'score_calc',
+  SCORE_TRANSITION: 'score_transition',
   RANKING: 'ranking',
   OUTRO: 'outro'
 }
@@ -36,9 +44,64 @@ const TIMING = {
   SCORE_ITEM_DURATION: 1500, // Longer for card bouncing
   SCORE_ITEM_STAGGER: 1800,  // Give time for 5 bounces
   TOTAL_REVEAL: 800,
+  SCORE_COUNTING_DURATION: 1800, // Duration for counting animation
   PLAYER_TRANSITION: 1000,
   RANKING_DURATION: 3000,
   CELEBRATION_DURATION: 2000
+}
+
+/**
+ * Custom hook for animated counting effect
+ * Animates a number from start to end over a specified duration
+ *
+ * @param {number} start - Starting value
+ * @param {number} end - Ending value
+ * @param {number} duration - Animation duration in milliseconds
+ * @param {boolean} enabled - Whether to run the animation
+ * @returns {number} Current animated value
+ */
+function useCountingAnimation(start, end, duration, enabled) {
+  const [currentValue, setCurrentValue] = useState(start)
+  const frameRef = useRef(null)
+  const startTimeRef = useRef(null)
+
+  useEffect(() => {
+    if (!enabled) {
+      setCurrentValue(start)
+      return
+    }
+
+    // Easing function for smooth deceleration
+    const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4)
+
+    const animate = (timestamp) => {
+      if (!startTimeRef.current) {
+        startTimeRef.current = timestamp
+      }
+
+      const elapsed = timestamp - startTimeRef.current
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easeOutQuart(progress)
+
+      const newValue = Math.round(start + (end - start) * easedProgress)
+      setCurrentValue(newValue)
+
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(animate)
+      }
+    }
+
+    frameRef.current = requestAnimationFrame(animate)
+
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current)
+      }
+      startTimeRef.current = null
+    }
+  }, [start, end, duration, enabled])
+
+  return currentValue
 }
 
 // Card name to emoji mapping
@@ -59,12 +122,103 @@ const CARD_EMOJI = {
   'Mermaid': '🧜‍♀️'
 }
 
+/**
+ * ScoreTransitionDisplay Component
+ *
+ * Displays the animated score transition from old total to new total
+ * Features:
+ * - Counting animation with easing
+ * - Green highlight for score gains
+ * - Red highlight for score losses
+ * - Progress bar toward target score
+ * - Winner indicator when reaching target
+ */
+function ScoreTransitionDisplay({
+  oldScore,
+  newScore,
+  roundScore,
+  isGain,
+  targetScore,
+  isComplete
+}) {
+  // Use the counting animation hook
+  const animatedScore = useCountingAnimation(
+    oldScore,
+    newScore,
+    TIMING.SCORE_COUNTING_DURATION,
+    true // Always enabled when component mounts
+  )
+
+  // Calculate progress percentage
+  const progressPercentage = Math.min((animatedScore / targetScore) * 100, 100)
+  const isWinner = newScore >= targetScore
+
+  // Determine score change display
+  const scoreChange = roundScore
+  const changeSign = scoreChange >= 0 ? '+' : ''
+  const changeClass = scoreChange >= 0 ? 'round-settlement__score-change--gain' : 'round-settlement__score-change--loss'
+
+  return (
+    <div className={`round-settlement__score-transition ${isComplete ? 'round-settlement__score-transition--complete' : ''}`}>
+      <h4 className="round-settlement__transition-title">累計總分</h4>
+
+      <div className="round-settlement__transition-content">
+        {/* Old score */}
+        <div className="round-settlement__transition-old">
+          <span className="round-settlement__transition-label">上回合</span>
+          <span className="round-settlement__transition-value">{oldScore}</span>
+        </div>
+
+        {/* Arrow and change */}
+        <div className="round-settlement__transition-arrow">
+          <span className={`round-settlement__score-change ${changeClass}`}>
+            {changeSign}{scoreChange}
+          </span>
+          <span className="round-settlement__arrow-icon">→</span>
+        </div>
+
+        {/* Animated new score */}
+        <div className={`round-settlement__transition-new ${isWinner ? 'round-settlement__transition-new--winner' : ''}`}>
+          <span className="round-settlement__transition-label">新總分</span>
+          <span className={`round-settlement__transition-value round-settlement__transition-value--animated ${changeClass}`}>
+            {animatedScore}
+          </span>
+        </div>
+      </div>
+
+      {/* Progress bar toward target */}
+      <div className="round-settlement__progress-container">
+        <div className="round-settlement__progress-bar">
+          <div
+            className={`round-settlement__progress-fill ${isWinner ? 'round-settlement__progress-fill--winner' : ''}`}
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
+        <div className="round-settlement__progress-labels">
+          <span className="round-settlement__progress-current">{animatedScore} 分</span>
+          <span className="round-settlement__progress-target">目標: {targetScore} 分</span>
+        </div>
+      </div>
+
+      {/* Winner celebration */}
+      {isWinner && isComplete && (
+        <div className="round-settlement__winner-badge">
+          <span className="round-settlement__winner-icon">🏆</span>
+          <span className="round-settlement__winner-label">達成目標分數！</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function RoundSettlement({
   isOpen,
   players,
   declarerId,
   declareMode,
   declarerHasHighest,  // Last Chance 模式：宣告者是否獲勝
+  totalScores = {},    // 累計總分 { playerId: { oldScore, newScore, roundScore } }
+  targetScore = 30,    // 目標分數
   onComplete,
   onSkip
 }) {
@@ -80,12 +234,18 @@ function RoundSettlement({
   const [waitingForNext, setWaitingForNext] = useState(false) // Wait for user to click next
   const [playerAnimationDone, setPlayerAnimationDone] = useState(false) // Current player animation finished
   const [bouncingCardNames, setBouncingCardNames] = useState([]) // Cards currently bouncing for score animation
+  const [showScoreTransition, setShowScoreTransition] = useState(false) // Show score counting animation
+  const [scoreTransitionComplete, setScoreTransitionComplete] = useState(false) // Score transition finished
 
-  // Sort players by score for ranking
+  // Sort players by NEW total score for ranking (includes accumulated scores)
   const sortedPlayers = useMemo(() => {
     if (!players || players.length === 0) return []
-    return [...players].sort((a, b) => (b.score?.total || 0) - (a.score?.total || 0))
-  }, [players])
+    return [...players].sort((a, b) => {
+      const aNewTotal = totalScores[a.id]?.newScore ?? (a.score?.total || 0)
+      const bNewTotal = totalScores[b.id]?.newScore ?? (b.score?.total || 0)
+      return bNewTotal - aNewTotal
+    })
+  }, [players, totalScores])
 
   // Get player order (declarer first)
   const playerOrder = useMemo(() => {
@@ -100,6 +260,30 @@ function RoundSettlement({
 
   // Current player being shown
   const currentPlayer = playerOrder[currentPlayerIndex]
+
+  // Get current player's score transition data
+  const currentPlayerScoreData = useMemo(() => {
+    if (!currentPlayer) return { oldScore: 0, newScore: 0, roundScore: 0, isGain: true }
+
+    const playerTotalData = totalScores[currentPlayer.id]
+    if (playerTotalData) {
+      return {
+        oldScore: playerTotalData.oldScore || 0,
+        newScore: playerTotalData.newScore || 0,
+        roundScore: playerTotalData.roundScore || currentPlayer.score?.total || 0,
+        isGain: (playerTotalData.roundScore || 0) >= 0
+      }
+    }
+
+    // Fallback: calculate from round score only
+    const roundScore = currentPlayer.score?.total || 0
+    return {
+      oldScore: 0,
+      newScore: roundScore,
+      roundScore: roundScore,
+      isGain: roundScore >= 0
+    }
+  }, [currentPlayer, totalScores])
 
   // Get all cards from hand and played pairs
   const allCards = useMemo(() => {
@@ -384,6 +568,8 @@ function RoundSettlement({
       setWaitingForNext(false)
       setPlayerAnimationDone(false)
       setBouncingCardNames([])
+      setShowScoreTransition(false)
+      setScoreTransitionComplete(false)
     }
   }, [isOpen])
 
@@ -450,14 +636,28 @@ function RoundSettlement({
           }, i * TIMING.SCORE_ITEM_STAGGER)
         }
 
-        // After all items, show total and wait for user
+        // After all items, show total and transition to score counting phase
         const totalTime = scoreItems.length * TIMING.SCORE_ITEM_STAGGER + TIMING.SCORE_ITEM_DURATION
         timeoutId = setTimeout(() => {
           setBouncingCardNames([]) // Clear any remaining bouncing
           setShowTotal(true)
+          // Move to score transition phase for counting animation
+          setPhase(PHASE.SCORE_TRANSITION)
+        }, totalTime)
+
+        return
+      }
+
+      // Phase: SCORE_TRANSITION - Show counting animation from old to new total
+      if (phase === PHASE.SCORE_TRANSITION) {
+        setShowScoreTransition(true)
+
+        // Wait for counting animation to complete, then wait for user
+        timeoutId = setTimeout(() => {
+          setScoreTransitionComplete(true)
           setPlayerAnimationDone(true)
           setWaitingForNext(true) // Wait for user to click next
-        }, totalTime)
+        }, TIMING.SCORE_COUNTING_DURATION)
 
         return
       }
@@ -488,6 +688,8 @@ function RoundSettlement({
     setWaitingForNext(false)
     setPlayerAnimationDone(false)
     setBouncingCardNames([])
+    setShowScoreTransition(false)
+    setScoreTransitionComplete(false)
 
     if (currentPlayerIndex < playerOrder.length - 1) {
       // Move to next player
@@ -649,7 +851,7 @@ function RoundSettlement({
 
               {/* Total score */}
               <div className={`round-settlement__total ${showTotal ? 'round-settlement__total--visible' : ''}`}>
-                <span className="round-settlement__total-label">總分</span>
+                <span className="round-settlement__total-label">本回合得分</span>
                 <span className="round-settlement__total-value">
                   {(() => {
                     // Last Chance 模式下，顯示卡牌分數（不含顏色獎勵）
@@ -663,6 +865,18 @@ function RoundSettlement({
                   })()}
                 </span>
               </div>
+
+              {/* Score Transition - Accumulated Total Score Animation */}
+              {showScoreTransition && (
+                <ScoreTransitionDisplay
+                  oldScore={currentPlayerScoreData.oldScore}
+                  newScore={currentPlayerScoreData.newScore}
+                  roundScore={currentPlayerScoreData.roundScore}
+                  isGain={currentPlayerScoreData.isGain}
+                  targetScore={targetScore}
+                  isComplete={scoreTransitionComplete}
+                />
+              )}
             </div>
           </div>
         )}
@@ -689,7 +903,9 @@ function RoundSettlement({
                       {player.name}
                       {player.id === declarerId && <span className="round-settlement__declarer-star">★</span>}
                     </div>
-                    <div className="round-settlement__podium-score">{player.score?.total || 0} 分</div>
+                    <div className="round-settlement__podium-score">
+                      {totalScores[player.id]?.newScore ?? (player.score?.total || 0)} 分
+                    </div>
                   </div>
                   <div className="round-settlement__podium-stand" />
                 </div>
@@ -713,7 +929,9 @@ function RoundSettlement({
                   <div key={player.id} className="round-settlement__other-player">
                     <span className="round-settlement__other-rank">{index + 4}.</span>
                     <span className="round-settlement__other-name">{player.name}</span>
-                    <span className="round-settlement__other-score">{player.score?.total || 0} 分</span>
+                    <span className="round-settlement__other-score">
+                      {totalScores[player.id]?.newScore ?? (player.score?.total || 0)} 分
+                    </span>
                   </div>
                 ))}
               </div>
@@ -782,7 +1000,7 @@ RoundSettlement.propTypes = {
       colorBonus: PropTypes.number,
       total: PropTypes.number
     }),
-    cardScore: PropTypes.shape({  // 新增：原始卡牌分數（Last Chance 用）
+    cardScore: PropTypes.shape({  // 原始卡牌分數（Last Chance 用）
       base: PropTypes.number,
       pairs: PropTypes.number,
       multipliers: PropTypes.number,
@@ -793,7 +1011,13 @@ RoundSettlement.propTypes = {
   })),
   declarerId: PropTypes.string,
   declareMode: PropTypes.oneOf(['stop', 'last_chance']),
-  declarerHasHighest: PropTypes.bool,  // 新增：Last Chance 模式宣告者是否獲勝
+  declarerHasHighest: PropTypes.bool,  // Last Chance 模式宣告者是否獲勝
+  totalScores: PropTypes.objectOf(PropTypes.shape({  // 累計總分數據
+    oldScore: PropTypes.number,
+    newScore: PropTypes.number,
+    roundScore: PropTypes.number
+  })),
+  targetScore: PropTypes.number,  // 目標分數
   onComplete: PropTypes.func.isRequired,
   onSkip: PropTypes.func
 }

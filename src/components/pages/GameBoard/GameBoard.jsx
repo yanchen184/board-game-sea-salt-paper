@@ -314,11 +314,26 @@ function GameBoard() {
       cardScore: cardScores[playerId] || scores[playerId]  // 原始卡牌分數（Last Chance 用）
     }))
 
+    // Prepare totalScores data for score transition animation
+    // Format: { playerId: { oldScore, newScore, roundScore } }
+    const totalScoresForAnimation = {}
+    playerIds.forEach(playerId => {
+      const previousTotal = gameState.totalScores?.[playerId] || 0
+      const roundScore = scores[playerId]?.total || 0
+      totalScoresForAnimation[playerId] = {
+        oldScore: previousTotal,
+        newScore: previousTotal + roundScore,
+        roundScore: roundScore
+      }
+    })
+
     setSettlementData({
       players: settlementPlayers,
       declarerId: declaringPlayerId,
       declareMode,
-      declarerHasHighest  // 傳遞宣告者是否獲勝
+      declarerHasHighest,  // 傳遞宣告者是否獲勝
+      totalScores: totalScoresForAnimation,  // 累計總分數據
+      targetScore  // 目標分數
     })
 
     // Show settlement animation first
@@ -1619,6 +1634,8 @@ function GameBoard() {
         declarerId={settlementData?.declarerId}
         declareMode={settlementData?.declareMode}
         declarerHasHighest={settlementData?.declarerHasHighest}
+        totalScores={settlementData?.totalScores || {}}
+        targetScore={settlementData?.targetScore || 30}
         onComplete={handleSettlementComplete}
         onSkip={handleSettlementComplete}
       />

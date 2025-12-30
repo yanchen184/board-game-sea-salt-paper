@@ -21,6 +21,7 @@ import './App.css'
 function App() {
   return (
     <Router
+      basename="/board-game-sea-salt-paper"
       future={{
         v7_startTransition: true,
         v7_relativeSplatPath: true
