@@ -5,6 +5,7 @@ import ScorePanel from '../../game/ScorePanel/ScorePanel'
 import ActionLog from '../../game/ActionLog/ActionLog'
 import Button from '../../common/Button/Button'
 import Card from '../../common/Card/Card'
+import Modal from '../../common/Modal/Modal'
 import CrabEffectModal from '../../game/CrabEffectModal/CrabEffectModal'
 import StealCardModal from '../../game/StealCardModal/StealCardModal'
 import AnimatedCard from '../../game/AnimatedCard/AnimatedCard'
@@ -14,11 +15,13 @@ import DeclareScoreModal from '../../game/DeclareScoreModal/DeclareScoreModal'
 import RoundSettlement from '../../game/RoundSettlement/RoundSettlement'
 import OpponentDrawAnimation from '../../game/OpponentDrawAnimation/OpponentDrawAnimation'
 import { listenToRoom, updateGameState, updatePlayerHand, addActionToLog } from '../../../services/firebaseService'
+import { database, ref, get } from '../../../config/firebase'
 import { calculateScore, calculateLastChanceScores } from '../../../services/scoreService'
 import { drawFromDeck, checkDeckReshuffle, createDeck, executePairEffect } from '../../../services/gameService'
 import { useGameState } from '../../../hooks/useGameState'
 import { makeAIDecision } from '../../../services/aiService'
 import { COLOR_DISTRIBUTION, GAME_COLORS } from '../../../config/colorConfig'
+import { saveLastRoom, updatePlayerConnectionStatus, reconnectPlayer, clearLastRoom } from '../../../services/reconnectionService'
 import './GameBoard.css'
 
 /**
@@ -58,11 +61,13 @@ function GameBoard() {
   const [declareScoreData, setDeclareScoreData] = useState(null)
   const [showColorInfo, setShowColorInfo] = useState(false)
   const [showHandColorStats, setShowHandColorStats] = useState(false)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   const previousHandRef = useRef([])
   const previousCurrentPlayerIdRef = useRef(null)
   const previousActionLogLengthRef = useRef(0)
   const aiTimerRef = useRef(null) // 追蹤 AI 定時器
   const aiTurnKeyRef = useRef(null) // 追蹤當前 AI 回合的唯一標識
+  const isLeavingRef = useRef(false) // 標記是否為主動離開
 
   // Game state hook
   const gameActions = useGameState(roomId, gameState, currentPlayer?.id)
@@ -79,6 +84,40 @@ function GameBoard() {
 
     setCurrentPlayer({ id: playerId, name: playerName })
   }, [navigate])
+
+  // Handle reconnection and connection status
+  useEffect(() => {
+    if (!roomId || !currentPlayer?.id || !currentPlayer?.name) return
+
+    console.log('[GameBoard] Saving room and updating connection status')
+
+    // Save current room for reconnection
+    saveLastRoom(roomId, currentPlayer.id)
+
+    // Mark player as connected and handle reconnection
+    const setupConnection = async () => {
+      try {
+        await reconnectPlayer(roomId, currentPlayer.id, currentPlayer.name)
+        console.log('[GameBoard] Player marked as connected')
+      } catch (error) {
+        console.error('[GameBoard] Error setting up connection:', error)
+      }
+    }
+
+    setupConnection()
+
+    // Clean up on unmount: mark player as disconnected
+    return () => {
+      console.log('[GameBoard] Component unmounting, marking player as disconnected')
+      updatePlayerConnectionStatus(roomId, currentPlayer.id, false)
+
+      // 如果是主動離開，清除重連資料
+      if (isLeavingRef.current) {
+        console.log('[GameBoard] Active leave detected, clearing reconnection data')
+        clearLastRoom()
+      }
+    }
+  }, [roomId, currentPlayer?.id, currentPlayer?.name])
 
   // Listen to room data (includes both gameState and player metadata)
   useEffect(() => {
@@ -364,7 +403,8 @@ function GameBoard() {
           action.playerId !== currentPlayer.id
         ) {
           // Calculate opponent position
-          const playerIds = Object.keys(gameState.players)
+          // 使用固定的玩家順序數組，而不是 Object.keys
+          const playerIds = gameState.playerOrder || Object.keys(gameState.players)
           const myIndex = playerIds.indexOf(currentPlayer.id)
           const opponentIndex = playerIds.indexOf(action.playerId)
 
@@ -501,7 +541,8 @@ function GameBoard() {
             console.log('[AI Turn] Processing steal card effect')
 
             // AI 選擇要偷的對手（選擇手牌最多的對手）
-            const opponentIds = Object.keys(gameState.players).filter(id => id !== aiPlayerId)
+            // 使用固定的玩家順序數組，而不是 Object.keys
+            const opponentIds = (gameState.playerOrder || Object.keys(gameState.players)).filter(id => id !== aiPlayerId)
             let targetOpponent = null
             let maxHandSize = 0
 
@@ -586,9 +627,10 @@ function GameBoard() {
                 }
               })
 
-              // 清除 turnKey，讓 AI 可以繼續下一步
-              aiTurnKeyRef.current = null
-              return
+              // 不要清除 turnKey，讓代碼繼續執行到 pair 階段的 AI 決策
+              // 這樣 AI 可以繼續評估是否打更多組合牌
+              console.log('[AI Turn] Steal complete, continuing to pair phase decision...')
+              // 不 return，繼續執行後面的 pair 階段邏輯
             } else {
               // 沒有對手有牌可偷，清除效果並繼續
               console.log('[AI Turn] No opponents with cards to steal, continuing to pair phase')
@@ -598,8 +640,8 @@ function GameBoard() {
                 state.turnPhase = 'pair'
                 return state
               })
-              aiTurnKeyRef.current = null
-              return
+              // 不清除 turnKey，不 return，繼續執行 pair 階段決策
+              console.log('[AI Turn] No steal target, continuing to pair phase decision...')
             }
           }
         }
@@ -608,6 +650,8 @@ function GameBoard() {
         const decision = makeAIDecision(difficulty, gameState, aiPlayerId)
 
         console.log('[AI Turn] AI decision:', decision, 'for phase:', gameState.turnPhase)
+        console.log('[AI Turn] AI hand (from gameState):', gameState.players?.[aiPlayerId]?.hand?.map(c => c.name))
+        console.log('[AI Turn] AI playedPairs:', gameState.players?.[aiPlayerId]?.playedPairs?.length || 0)
 
         // ========== DRAW 階段 ==========
         if (gameState.turnPhase === 'draw' && decision.action === 'draw') {
@@ -883,12 +927,109 @@ function GameBoard() {
             }
 
           } else if (decision.action === 'end_turn') {
-            // 沒有要打的組合牌，進入宣告階段
+            // 沒有要打的組合牌，直接更新遊戲狀態來結束回合
+            console.log('[AI Turn] No pairs to play, ending turn via state update')
+
             await updateGameState(roomId, (state) => {
-              state.turnPhase = 'declare'
-              console.log('[AI Turn] No pairs to play, entering declare phase')
+              // 🔑 Check for extra_turn effect FIRST
+              const hasExtraTurn = state.pendingEffect && state.pendingEffect.effect === 'extra_turn'
+
+              if (hasExtraTurn) {
+                console.log('[AI Turn] ⛵ Extra turn detected! AI gets another turn')
+                state.turnPhase = 'draw'
+                state.pendingEffect = null
+                return state
+              }
+
+              // 💡 檢查玩家分數，只有 >= 7 分才進入宣告階段
+              console.log('[AI Turn] Checking AI score for currentPlayerId:', state.currentPlayerId)
+              const player = state.players[state.currentPlayerId]
+
+              if (!player) {
+                console.error('[AI Turn] ERROR: Player not found for currentPlayerId:', state.currentPlayerId)
+                return state
+              }
+
+              console.log('[AI Turn] Player found:', player.name, 'calculating score...')
+
+              const playerScore = calculateScore(
+                player?.hand || [],
+                player?.playedPairs || [],
+                { includeColorBonus: false }
+              )
+
+              console.log('[AI Turn] Calculated score:', playerScore.total)
+
+              // 如果分數 >= 7，AI 需要進入宣告階段做決定
+              if (playerScore.total >= 7) {
+                console.log('[AI Turn] Score >= 7, entering declare phase for AI decision')
+                state.turnPhase = 'declare'
+                state.pendingEffect = null
+                return state
+              }
+
+              // 分數 < 7，自動跳過宣告，直接切換到下一個玩家
+              console.log('[AI Turn] Score < 7, auto-skipping declare, switching to next player')
+
+              const playerIds = state.playerOrder || Object.keys(state.players)
+              const currentIndex = playerIds.indexOf(state.currentPlayerId)
+              const nextIndex = (currentIndex + 1) % playerIds.length
+              const nextPlayerId = playerIds[nextIndex]
+
+              // Increment turn count
+              state.turnCount = (state.turnCount || 0) + 1
+
+              // 處理 Last Chance 模式
+              if (state.declareMode === 'last_chance' && state.remainingTurns !== null) {
+                state.remainingTurns = state.remainingTurns - 1
+                console.log('[AI Turn] Last Chance mode - remaining turns:', state.remainingTurns)
+
+                if (state.remainingTurns <= 0) {
+                  console.log('[AI Turn] Last Chance complete - ending round')
+                  state.turnPhase = 'round_end'
+                  return state
+                }
+              }
+
+              state.currentPlayerId = nextPlayerId
+              state.currentPlayerIndex = nextIndex
+              state.turnPhase = 'draw'
+              state.pendingEffect = null
+
+              console.log('[AI Turn] Switched to next player:', nextPlayerId, 'turnCount:', state.turnCount)
+
               return state
             })
+
+            // 檢查是否進入 declare 階段，如果是就直接返回
+            // 從 Firebase 重新讀取當前狀態
+            const currentState = await new Promise((resolve) => {
+              const stateRef = ref(database, `rooms/${roomId}/gameState`)
+              get(stateRef).then(snapshot => resolve(snapshot.val()))
+            })
+
+            if (currentState?.turnPhase === 'declare') {
+              console.log('[AI Turn] Entered declare phase, skipping endTurn cleanup')
+              return
+            }
+
+            // Log action
+            await addActionToLog(roomId, {
+              type: 'end_turn',
+              playerId: aiPlayerId,
+              playerName: aiPlayerData.name,
+              message: '結束了回合'
+            })
+
+            console.log('[AI Turn] Turn ended, clearing turnKey for:', aiPlayerId)
+            // 清除 turnKey（只清除當前玩家的 turnKey）
+            // 檢查 turnKey 是否還屬於這個玩家，避免清除新玩家的 turnKey
+            if (aiTurnKeyRef.current && aiTurnKeyRef.current.startsWith(aiPlayerId)) {
+              console.log('[AI Turn] Clearing turnKey:', aiTurnKeyRef.current)
+              aiTurnKeyRef.current = null
+            } else {
+              console.log('[AI Turn] TurnKey already updated to new player, keeping it:', aiTurnKeyRef.current)
+            }
           }
         }
 
@@ -906,7 +1047,8 @@ function GameBoard() {
                 state.turnPhase = 'round_end'
               } else {
                 // last_chance - 其他玩家各有一回合
-                const playerIds = Object.keys(state.players)
+                // 使用固定的玩家順序數組，而不是 Object.keys
+                const playerIds = state.playerOrder || Object.keys(state.players)
                 state.remainingTurns = playerIds.length - 1
                 state.turnPhase = 'declare_showing'
               }
@@ -922,10 +1064,19 @@ function GameBoard() {
               message: `宣告「${declareText}」！`
             })
 
+            // 清除 turnKey（只清除當前玩家的 turnKey）
+            if (aiTurnKeyRef.current && aiTurnKeyRef.current.startsWith(aiPlayerId)) {
+              aiTurnKeyRef.current = null
+              console.log('[AI Turn] Cleared turnKey after declare for:', aiPlayerId)
+            } else {
+              console.log('[AI Turn] TurnKey already updated to new player after declare, keeping it:', aiTurnKeyRef.current)
+            }
+
           } else {
             // 不宣告，結束回合
             await updateGameState(roomId, (state) => {
-              const playerIds = Object.keys(state.players)
+              // 使用固定的玩家順序數組，而不是 Object.keys
+              const playerIds = state.playerOrder || Object.keys(state.players)
               const currentIndex = playerIds.indexOf(state.currentPlayerId)
               const nextIndex = (currentIndex + 1) % playerIds.length
 
@@ -950,7 +1101,7 @@ function GameBoard() {
               state.turnPhase = 'draw'
               state.pendingEffect = null
 
-              console.log('[AI Turn] Ended turn, next player:', playerIds[nextIndex], 'turnCount:', state.turnCount)
+              console.log('[AI Turn] Ended turn, next player:', playerIds[nextIndex], 'turnCount:', state.turnCount, 'playerOrder:', playerIds)
               return state
             })
 
@@ -960,11 +1111,24 @@ function GameBoard() {
               playerName: aiPlayerData.name,
               message: '結束了回合'
             })
+
+            // 清除 turnKey（只清除當前玩家的 turnKey）
+            if (aiTurnKeyRef.current && aiTurnKeyRef.current.startsWith(aiPlayerId)) {
+              aiTurnKeyRef.current = null
+              console.log('[AI Turn] Cleared turnKey after ending turn for:', aiPlayerId)
+            } else {
+              console.log('[AI Turn] TurnKey already updated to new player after ending turn, keeping it:', aiTurnKeyRef.current)
+            }
           }
         }
 
       } catch (error) {
+        console.error('[AI Turn] EXCEPTION CAUGHT!')
+        console.error('[AI Turn] Error type:', typeof error)
         console.error('[AI Turn] Error:', error)
+        console.error('[AI Turn] Error message:', error?.message)
+        console.error('[AI Turn] Error stack:', error?.stack)
+        console.error('[AI Turn] Stringified error:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
         aiTurnKeyRef.current = null
       }
     }
@@ -1165,12 +1329,26 @@ function GameBoard() {
   }
 
   /**
-   * Handle leave game
+   * Handle leave game - Show confirmation modal
    */
   const handleLeaveGame = () => {
-    if (window.confirm('確定要離開遊戲嗎？')) {
-      navigate('/')
+    setShowLeaveConfirm(true)
+  }
+
+  /**
+   * Confirm leave game
+   */
+  const confirmLeaveGame = async () => {
+    // 標記為主動離開，cleanup 函數會清除重連資料
+    console.log('[GameBoard] Player actively leaving game')
+    isLeavingRef.current = true
+
+    // 標記玩家為離線
+    if (roomId && currentPlayer?.id) {
+      await updatePlayerConnectionStatus(roomId, currentPlayer.id, false)
     }
+
+    navigate('/')
   }
 
   /**
@@ -1212,7 +1390,8 @@ function GameBoard() {
 
     try {
       await updateGameState(roomId, (state) => {
-        const playerIds = Object.keys(state.players)
+        // 使用固定的玩家順序數組，而不是 Object.keys
+        const playerIds = state.playerOrder || Object.keys(state.players)
 
         // Create new shuffled deck
         let newDeck = createDeck()
@@ -1283,6 +1462,9 @@ function GameBoard() {
   const handleEndGame = async () => {
     console.log('[EndGame] Game over, returning to lobby...')
 
+    // 標記為主動離開，cleanup 函數會清除重連資料
+    isLeavingRef.current = true
+
     try {
       // Update room status to finished
       await updateGameState(roomId, (state) => {
@@ -1292,6 +1474,11 @@ function GameBoard() {
         }
         return state
       })
+
+      // 標記玩家為離線
+      if (roomId && currentPlayer?.id) {
+        await updatePlayerConnectionStatus(roomId, currentPlayer.id, false)
+      }
 
       // Navigate to home
       navigate('/')
@@ -1314,7 +1501,8 @@ function GameBoard() {
   }
 
   // Extract game state
-  const playerIds = Object.keys(gameState.players)
+  // 使用固定的玩家順序數組，而不是 Object.keys
+  const playerIds = gameState.playerOrder || Object.keys(gameState.players)
   const opponentIds = playerIds.filter(id => id !== currentPlayer.id)
   const isMyTurn = gameState.currentPlayerId === currentPlayer.id
   const turnPhase = gameState.turnPhase
@@ -1379,7 +1567,9 @@ function GameBoard() {
 
   // Merge players data from gameState and roomData
   const playersWithMeta = {}
-  Object.keys(gameState.players).forEach(playerId => {
+  // 使用固定的玩家順序數組，而不是 Object.keys
+  const allPlayerIds = gameState.playerOrder || Object.keys(gameState.players)
+  allPlayerIds.forEach(playerId => {
     const gamePlayerData = gameState.players[playerId] || {}
     const roomPlayerData = roomData?.players[playerId] || {}
     playersWithMeta[playerId] = {
@@ -1702,6 +1892,7 @@ function GameBoard() {
             <h3 className="game-board__panel-title">計分</h3>
             <ScorePanel
               scoreBreakdown={myScore}
+              currentTotalScore={gameState.totalScores?.[currentPlayer.id] || 0}
               targetScore={targetScore}
               canDeclare={canDeclare}
               onDeclareStop={handleDeclareStop}
@@ -1729,6 +1920,34 @@ function GameBoard() {
           delay={delay}
         />
       ))}
+
+      {/* Leave Confirmation Modal */}
+      <Modal
+        isOpen={showLeaveConfirm}
+        onClose={() => setShowLeaveConfirm(false)}
+        title="離開遊戲"
+        size="small"
+      >
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <p style={{ marginBottom: '24px', fontSize: '16px' }}>
+            確定要離開遊戲嗎？
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <Button
+              variant="danger"
+              onClick={confirmLeaveGame}
+            >
+              確定離開
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setShowLeaveConfirm(false)}
+            >
+              取消
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

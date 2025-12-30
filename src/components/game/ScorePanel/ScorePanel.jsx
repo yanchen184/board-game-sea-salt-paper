@@ -10,13 +10,14 @@ import './ScorePanel.css'
  * Shows declare buttons (Stop / Last Chance)
  * Opens modal with detailed score breakdown
  *
- * @param {Object} scoreBreakdown - Score breakdown object
+ * @param {Object} scoreBreakdown - Score breakdown object (current round)
  * @param {number} scoreBreakdown.base - Base card score
  * @param {number} scoreBreakdown.pairs - Pair bonus score
  * @param {number} scoreBreakdown.multipliers - Multiplier bonus score
  * @param {number} scoreBreakdown.mermaids - Mermaid score
  * @param {number} scoreBreakdown.colorBonus - Color bonus
- * @param {number} scoreBreakdown.total - Total score
+ * @param {number} scoreBreakdown.total - Total score (current round)
+ * @param {number} currentTotalScore - Cumulative total score from previous rounds
  * @param {number} targetScore - Target score to win
  * @param {boolean} canDeclare - Whether player can declare
  * @param {Function} onDeclareStop - Callback for Stop declaration
@@ -27,6 +28,7 @@ import './ScorePanel.css'
  */
 function ScorePanel({
   scoreBreakdown = { total: 0 },
+  currentTotalScore = 0,
   targetScore = 30,
   canDeclare = false,
   onDeclareStop,
@@ -51,7 +53,9 @@ function ScorePanel({
 
   const { cardValues = 0, collectionDetails = [] } = baseDetails
 
-  const progressPercent = Math.min((total / targetScore) * 100, 100)
+  // Display cumulative total score (previous rounds + current round)
+  const displayScore = currentTotalScore + total
+  const progressPercent = Math.min((displayScore / targetScore) * 100, 100)
 
   /**
    * Handle declare Stop
@@ -81,7 +85,10 @@ function ScorePanel({
         <div className="score-panel__display">
           <div className="score-panel__current">
             <span className="score-panel__label">Score:</span>
-            <span className="score-panel__value">{total}</span>
+            <span className="score-panel__value">{displayScore}</span>
+            {total > 0 && (
+              <span className="score-panel__round-preview"> (+{total})</span>
+            )}
           </div>
           <div className="score-panel__target">
             / {targetScore}
@@ -163,7 +170,7 @@ function ScorePanel({
                 最後機會 (Last Chance)
               </Button>
               <Button
-                variant="tertiary"
+                variant="ghost"
                 size="small"
                 onClick={handleSkipDeclare}
                 className="score-panel__declare-btn"
@@ -181,7 +188,7 @@ function ScorePanel({
               需要 7 分以上才能宣告
             </p>
             <Button
-              variant="tertiary"
+              variant="ghost"
               size="small"
               onClick={handleSkipDeclare}
               className="score-panel__skip-btn"
@@ -355,8 +362,13 @@ function ScorePanel({
               />
             </div>
             <div className="score-breakdown__progress-text">
-              {total} / {targetScore} ({Math.round(progressPercent)}%)
+              {displayScore} / {targetScore} ({Math.round(progressPercent)}%)
             </div>
+            {currentTotalScore > 0 && (
+              <div className="score-breakdown__cumulative-info">
+                前幾回合: {currentTotalScore} | 本回合: {total}
+              </div>
+            )}
           </div>
         </div>
       </Modal>

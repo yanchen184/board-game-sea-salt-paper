@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
-import { updateGameState, updatePlayerHand, addActionToLog } from '../services/firebaseService'
-import { drawFromDeck, validatePair, executePairEffect, checkDeckReshuffle } from '../services/gameService'
+import { updateGameState, updatePlayerHand, addActionToLog } from '../services/firebaseService.js'
+import { drawFromDeck, validatePair, executePairEffect, checkDeckReshuffle } from '../services/gameService.js'
+import { calculateScore } from '../services/scoreService.js'
 
 /**
  * useGameState Hook
@@ -137,19 +138,32 @@ export function useGameState(roomId, gameState, playerId) {
 
     try {
       const updatedState = await updateGameState(roomId, (state) => {
+        // Defensive check: abort transaction if state is null
+        if (!state) {
+          console.error('[Take Discard] Transaction aborted - state is null')
+          return // Return undefined to abort transaction
+        }
+
         const pileKey = side === 'left' ? 'discardLeft' : 'discardRight'
         const pile = state[pileKey]
+
+        // Check if pile exists and has cards
+        if (!pile || pile.length === 0) {
+          console.error('[Take Discard] Pile is empty or undefined')
+          return // Abort transaction
+        }
 
         // Take top card
         const takenCard = pile[pile.length - 1]
         const newPile = pile.slice(0, -1)
 
         // Update player hand
-        const player = state.players[playerId]
+        const player = state.players?.[playerId]
 
         // Defensive check
         if (!player) {
-          throw new Error('Player not found in game state')
+          console.error('[Take Discard] Player not found in game state')
+          return // Abort transaction
         }
         if (!Array.isArray(player.hand)) {
           console.error(`[Take Discard] Player ${playerId} hand is not an array:`, player.hand)
@@ -164,6 +178,12 @@ export function useGameState(roomId, gameState, playerId) {
 
         return state
       })
+
+      // Check if transaction succeeded
+      if (!updatedState || !updatedState.players?.[playerId]) {
+        console.error('[Take Discard] Transaction failed or returned invalid state')
+        return { success: false, error: 'Transaction aborted - please try again' }
+      }
 
       // Update player hand in database
       await updatePlayerHand(roomId, playerId, updatedState.players[playerId].hand)
@@ -372,19 +392,78 @@ export function useGameState(roomId, gameState, playerId) {
           return state
         }
 
-        // ⚠️ 注意：不要直接切換玩家，要先進入 declare 階段
-        // 這樣玩家才有機會宣告 Stop 或 Last Chance
-        // 即使在 Last Chance 模式下，玩家也應該能宣告 Stop 來立即結束
+        // 💡 改進：檢查玩家分數，只有 >= 7 分才進入宣告階段
+        console.log('[endTurn] Checking player score for currentPlayerId:', state.currentPlayerId)
+        const player = state.players[state.currentPlayerId]
 
-        // 先進入 declare 階段
-        state.turnPhase = 'declare'
+        if (!player) {
+          console.error('[endTurn] ERROR: Player not found for currentPlayerId:', state.currentPlayerId)
+          console.error('[endTurn] Available players:', Object.keys(state.players))
+          throw new Error(`Player ${state.currentPlayerId} not found in game state`)
+        }
+
+        console.log('[endTurn] Player found:', player.name, 'calculating score...')
+        console.log('[endTurn] Player hand:', player.hand?.length || 0, 'cards')
+        console.log('[endTurn] Player playedPairs:', player.playedPairs?.length || 0, 'pairs')
+
+        const playerScore = calculateScore(
+          player?.hand || [],
+          player?.playedPairs || [],
+          { includeColorBonus: false }
+        )
+
+        console.log('[endTurn] Calculated score:', playerScore.total)
+
+        // 如果分數 >= 7，進入宣告階段讓玩家選擇
+        if (playerScore.total >= 7) {
+          console.log('[endTurn] Score >= 7, entering declare phase')
+          state.turnPhase = 'declare'
+          state.pendingEffect = null
+          return state
+        }
+
+        // 分數 < 7，自動跳過宣告，直接切換到下一個玩家
+        console.log('[endTurn] Score < 7, auto-skipping declare, switching to next player')
+
+        // 使用固定的玩家順序數組
+        const playerIds = state.playerOrder || Object.keys(state.players)
+        console.log('[endTurn] Player IDs:', playerIds)
+        console.log('[endTurn] Current player ID:', state.currentPlayerId)
+
+        const currentIndex = playerIds.indexOf(state.currentPlayerId)
+        console.log('[endTurn] Current index:', currentIndex)
+
+        if (currentIndex === -1) {
+          console.error('[endTurn] ERROR: currentPlayerId not found in playerIds array')
+          throw new Error(`Current player ${state.currentPlayerId} not in player order`)
+        }
+
+        const nextIndex = (currentIndex + 1) % playerIds.length
+        const nextPlayerId = playerIds[nextIndex]
+        console.log('[endTurn] Next player index:', nextIndex, 'ID:', nextPlayerId)
+
+        // Increment turn count
+        state.turnCount = (state.turnCount || 0) + 1
+
+        // 處理 Last Chance 模式
+        if (state.declareMode === 'last_chance' && state.remainingTurns !== null) {
+          state.remainingTurns = state.remainingTurns - 1
+          console.log('[endTurn] Last Chance mode - remaining turns:', state.remainingTurns)
+
+          // 如果沒有剩餘回合，結束回合
+          if (state.remainingTurns <= 0) {
+            console.log('[endTurn] Last Chance complete - ending round')
+            state.turnPhase = 'round_end'
+            return state
+          }
+        }
+
+        state.currentPlayerId = nextPlayerId
+        state.currentPlayerIndex = nextIndex
+        state.turnPhase = 'draw'
         state.pendingEffect = null
 
-        console.log('[endTurn] Entering declare phase', {
-          currentPlayerId: state.currentPlayerId,
-          declareMode: state.declareMode,
-          remainingTurns: state.remainingTurns
-        })
+        console.log('[endTurn] Switched to next player:', nextPlayerId, 'turnCount:', state.turnCount)
 
         return state
       })
@@ -484,8 +563,12 @@ export function useGameState(roomId, gameState, playerId) {
   /**
    * Confirm card choice (keep one, discard the other)
    *
+   * The retry mechanism is now handled by updateGameState internally.
+   * This function focuses on the business logic only.
+   *
    * @param {Object} chosenCard - Card to keep
    * @param {string} discardSide - 'left' or 'right' for discard pile
+   * @returns {Promise<{success: boolean, error?: string}>}
    */
   const confirmCardChoice = useCallback(async (chosenCard, discardSide) => {
     if (!playerId) return { success: false, error: 'Invalid state' }
@@ -497,25 +580,44 @@ export function useGameState(roomId, gameState, playerId) {
     })
 
     try {
+      // updateGameState now has built-in retry with exponential backoff
       const updatedState = await updateGameState(roomId, (state) => {
-        // Check in the latest state from Firebase
+        // Validate state structure
+        // Note: null check is now handled by updateGameState
+        console.log('[confirmCardChoice] Processing state:', {
+          turnPhase: state.turnPhase,
+          hasPendingChoice: !!state.pendingCardChoice,
+          currentPlayerId: state.currentPlayerId
+        })
+
+        // Validate phase
         if (state.turnPhase !== 'choosing_card') {
-          throw new Error('No card choice pending')
+          // This might happen if the operation was already completed
+          // Check if we should treat this as success
+          if (state.turnPhase === 'pair' && !state.pendingCardChoice) {
+            console.warn('[confirmCardChoice] Already in pair phase, operation may have completed')
+            // Return state unchanged - will be treated as no-op
+            return state
+          }
+          console.error(`[confirmCardChoice] Wrong phase: ${state.turnPhase}, expected: choosing_card`)
+          throw new Error(`Wrong phase: ${state.turnPhase}`)
         }
 
         if (!state.pendingCardChoice) {
+          console.error('[confirmCardChoice] No pending card choice in state')
           throw new Error('No pending card choice')
         }
 
         const { cards } = state.pendingCardChoice
-        console.log('[confirmCardChoice] Available cards:', {
-          cardCount: cards.length,
-          cards: cards.map(c => ({ id: c.id, name: c.name }))
-        })
 
+        // Find the card to discard
         const discardedCard = cards.find(c => c.id !== chosenCard.id)
 
         if (!discardedCard) {
+          console.error('[confirmCardChoice] Could not find discarded card:', {
+            chosenId: chosenCard.id,
+            availableIds: cards.map(c => c.id)
+          })
           throw new Error('Invalid card choice')
         }
 
@@ -524,62 +626,85 @@ export function useGameState(roomId, gameState, playerId) {
           discarded: discardedCard.name
         })
 
-        // Add chosen card to player hand
+        // Get player data
         const player = state.players[playerId]
-        if (!Array.isArray(player.hand)) {
-          player.hand = []
+        if (!player) {
+          console.error('[confirmCardChoice] Player not found in state')
+          throw new Error('Player not found')
         }
-        const oldHandSize = player.hand.length
-        const newHand = [...player.hand, chosenCard]
+
+        // Update player hand
+        const currentHand = Array.isArray(player.hand) ? player.hand : []
+        const newHand = [...currentHand, chosenCard]
 
         console.log('[confirmCardChoice] Hand update:', {
-          oldSize: oldHandSize,
+          oldSize: currentHand.length,
           newSize: newHand.length,
           addedCard: chosenCard.name
         })
 
-        // Add discarded card to chosen discard pile
+        // Update discard pile
         const pileKey = discardSide === 'left' ? 'discardLeft' : 'discardRight'
-        state[pileKey] = [...(state[pileKey] || []), discardedCard]
+        const currentPile = state[pileKey] || []
 
-        state.players[playerId].hand = newHand
-        state.pendingCardChoice = null
-        state.turnPhase = 'pair'
-
-        return state
-      })
+        // Create new state with all updates
+        return {
+          ...state,
+          [pileKey]: [...currentPile, discardedCard],
+          players: {
+            ...state.players,
+            [playerId]: {
+              ...player,
+              hand: newHand
+            }
+          },
+          pendingCardChoice: null,
+          turnPhase: 'pair'
+        }
+      }, { maxRetries: 3, retryDelay: 300 })
 
       console.log('[confirmCardChoice] Transaction completed:', {
         hasUpdatedState: !!updatedState,
-        hasPlayers: !!updatedState?.players,
-        hasPlayerData: !!updatedState?.players?.[playerId],
+        turnPhase: updatedState?.turnPhase,
         handSize: updatedState?.players?.[playerId]?.hand?.length
       })
 
-      // Update player hand in database
+      // Sync player hand metadata
       const playerHand = updatedState?.players?.[playerId]?.hand
       if (playerHand !== undefined) {
-        await updatePlayerHand(roomId, playerId, playerHand)
-      } else {
-        console.error('[confirmCardChoice] Player hand is undefined after transaction')
+        try {
+          await updatePlayerHand(roomId, playerId, playerHand)
+        } catch (handError) {
+          // Log but don't fail - the main transaction succeeded
+          console.error('[confirmCardChoice] Failed to sync player hand metadata:', handError)
+        }
       }
 
-      // Log action
-      const playerName = localStorage.getItem('playerName') || '未知玩家'
-      const sideText = discardSide === 'left' ? '左側' : '右側'
-      await addActionToLog(roomId, {
-        type: 'card_choice',
-        playerId,
-        playerName,
-        message: `保留了 ${chosenCard.name}，並將另一張棄到${sideText}棄牌堆`
-      })
+      // Log action (non-critical, don't fail if this errors)
+      try {
+        const playerName = localStorage.getItem('playerName') || '未知玩家'
+        const sideText = discardSide === 'left' ? '左側' : '右側'
+        await addActionToLog(roomId, {
+          type: 'card_choice',
+          playerId,
+          playerName,
+          message: `保留了 ${chosenCard.name}，並將另一張棄到${sideText}棄牌堆`
+        })
+      } catch (logError) {
+        console.error('[confirmCardChoice] Failed to log action:', logError)
+      }
 
+      console.log('[confirmCardChoice] Success!')
       return { success: true }
     } catch (error) {
-      console.error('Confirm card choice error:', error)
-      return { success: false, error: error.message }
+      console.error('[confirmCardChoice] Failed:', {
+        errorMessage: error?.message,
+        errorStack: error?.stack
+      })
+
+      return { success: false, error: error?.message || String(error) }
     }
-  }, [roomId, gameState, playerId])
+  }, [roomId, playerId])
 
   /**
    * Execute Crab Effect - Take card from discard pile
@@ -779,10 +904,20 @@ export function useGameState(roomId, gameState, playerId) {
           state.turnPhase = 'round_end'
         } else if (declareMode === 'last_chance') {
           // Last Chance mode: move to next player
-          const playerIds = Object.keys(state.players)
+          // Use fixed player order array for consistency
+          const playerIds = state.playerOrder || Object.keys(state.players)
           const currentIndex = playerIds.indexOf(state.currentPlayerId)
           const nextIndex = (currentIndex + 1) % playerIds.length
           const nextPlayerId = playerIds[nextIndex]
+
+          console.log('[confirmDeclareScore] Last Chance mode - switching to next player:', {
+            currentPlayerId: state.currentPlayerId,
+            nextPlayerId,
+            currentIndex,
+            nextIndex,
+            remainingTurns: state.remainingTurns,
+            playerOrder: playerIds
+          })
 
           state.currentPlayerId = nextPlayerId
           state.currentPlayerIndex = nextIndex
@@ -830,7 +965,8 @@ export function useGameState(roomId, gameState, playerId) {
 
     try {
       await updateGameState(roomId, (state) => {
-        const playerIds = Object.keys(state.players)
+        // 使用固定的玩家順序數組，而不是 Object.keys
+        const playerIds = state.playerOrder || Object.keys(state.players)
         const currentIndex = playerIds.indexOf(state.currentPlayerId)
         const nextIndex = (currentIndex + 1) % playerIds.length
         const nextPlayerId = playerIds[nextIndex]
@@ -838,7 +974,7 @@ export function useGameState(roomId, gameState, playerId) {
         // Increment turn count
         state.turnCount = (state.turnCount || 0) + 1
 
-        console.log('[skipDeclare] Skipping declare, next player:', nextPlayerId)
+        console.log('[skipDeclare] Skipping declare, next player:', nextPlayerId, 'playerOrder:', playerIds)
 
         // Handle Last Chance mode
         if (state.declareMode === 'last_chance' && state.remainingTurns !== null) {
