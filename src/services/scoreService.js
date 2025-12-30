@@ -401,9 +401,9 @@ export function canDeclare(scoreBreakdown) {
  * Calculate scores for "Last Chance" declare mode
  *
  * Rules:
- * - If declarer wins (has highest score):
+ * - If declarer wins (has highest score or ties):
  *   - Declarer gets card score + color bonus
- *   - Others get 0
+ *   - Others get only their color bonus
  * - If declarer loses (doesn't have highest score):
  *   - Declarer gets 0
  *   - Others get card score only (NO color bonus)
@@ -471,23 +471,24 @@ export function calculateLastChanceScores(players, declaringPlayerId) {
         }
       }
     } else {
-      // 宣告者失敗：宣告者只得顏色獎勵，其他玩家得到卡牌分數 + 顏色獎勵
+      // 宣告者失敗：宣告者得 0 分，其他玩家只得卡牌分數（不含顏色獎勵）
       if (isDeclarer) {
-        // Declarer loses: gets color bonus only
+        // Declarer loses: gets 0 points
         finalScores[playerId] = {
           ...scores[playerId],
           base: 0,
           pairs: 0,
           multipliers: 0,
           mermaids: 0,
-          colorBonus: colorBonus,
-          total: colorBonus  // 只得顏色獎勵
+          colorBonus: 0,
+          total: 0  // 宣告者失敗得 0 分
         }
       } else {
-        // Other players get card score + color bonus
+        // Other players get card score only (NO color bonus)
         finalScores[playerId] = {
           ...scores[playerId],
-          total: cardScoreOnly[playerId].total + colorBonus
+          colorBonus: 0,  // 不得顏色獎勵
+          total: cardScoreOnly[playerId].total  // 只得卡牌分數
         }
       }
     }
