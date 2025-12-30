@@ -185,7 +185,7 @@ export const DEFAULT_SETTINGS = {
   maxPlayers: 4,
   targetScore: 'auto', // 'auto' uses TARGET_SCORES, or can be 30, 35, 40, custom
   customScore: null,
-  startingHandSize: 2, // Changed from 0 to 2 - gives players initial cards to enable faster gameplay
+  startingHandSize: 0, // Players start with 0 cards - draw cards during first turn
   mermaidsWin: true,
   colorBonus: true,
   aiCount: 0,

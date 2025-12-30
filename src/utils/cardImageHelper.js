@@ -9,20 +9,21 @@
  * @returns {string} - The path to the card's origami image
  */
 export function getCardImage(cardName) {
+  const base = import.meta.env.BASE_URL || '/'
   const imageMap = {
-    Fish: '/assets/cards/fish_origami.png',
-    Crab: '/assets/cards/crab_origami.png',
-    Shell: '/assets/cards/shell_origami.png',
-    Starfish: '/assets/cards/starfish_origami.png',
-    Sailboat: '/assets/cards/sailboat_origami.png',
-    Shark: '/assets/cards/shark_origami.png',
-    Swimmer: '/assets/cards/swimmer_origami.png',
-    Sailor: '/assets/cards/sailor_origami.png',
-    Octopus: '/assets/cards/octopus_origami.png',
-    Penguin: '/assets/cards/penguin_origami.png',
-    Captain: '/assets/cards/captain_origami.png',
-    Seagull: '/assets/cards/seagull_origami.png',
-    Mermaid: '/assets/cards/mermaid_origami.png'
+    Fish: `${base}assets/cards/fish_origami.png`,
+    Crab: `${base}assets/cards/crab_origami.png`,
+    Shell: `${base}assets/cards/shell_origami.png`,
+    Starfish: `${base}assets/cards/starfish_origami.png`,
+    Sailboat: `${base}assets/cards/sailboat_origami.png`,
+    Shark: `${base}assets/cards/shark_origami.png`,
+    Swimmer: `${base}assets/cards/swimmer_origami.png`,
+    Sailor: `${base}assets/cards/sailor_origami.png`,
+    Octopus: `${base}assets/cards/octopus_origami.png`,
+    Penguin: `${base}assets/cards/penguin_origami.png`,
+    Captain: `${base}assets/cards/captain_origami.png`,
+    Seagull: `${base}assets/cards/seagull_origami.png`,
+    Mermaid: `${base}assets/cards/mermaid_origami.png`
   }
 
   return imageMap[cardName] || null
@@ -42,19 +43,20 @@ export function hasCardImage(cardName) {
  * @returns {Object} - Map of card names to image paths
  */
 export function getAllCardImages() {
+  const base = import.meta.env.BASE_URL || '/'
   return {
-    Fish: '/assets/cards/fish_origami.png',
-    Crab: '/assets/cards/crab_origami.png',
-    Shell: '/assets/cards/shell_origami.png',
-    Starfish: '/assets/cards/starfish_origami.png',
-    Sailboat: '/assets/cards/sailboat_origami.png',
-    Shark: '/assets/cards/shark_origami.png',
-    Swimmer: '/assets/cards/swimmer_origami.png',
-    Sailor: '/assets/cards/sailor_origami.png',
-    Octopus: '/assets/cards/octopus_origami.png',
-    Penguin: '/assets/cards/penguin_origami.png',
-    Captain: '/assets/cards/captain_origami.png',
-    Seagull: '/assets/cards/seagull_origami.png',
-    Mermaid: '/assets/cards/mermaid_origami.png'
+    Fish: `${base}assets/cards/fish_origami.png`,
+    Crab: `${base}assets/cards/crab_origami.png`,
+    Shell: `${base}assets/cards/shell_origami.png`,
+    Starfish: `${base}assets/cards/starfish_origami.png`,
+    Sailboat: `${base}assets/cards/sailboat_origami.png`,
+    Shark: `${base}assets/cards/shark_origami.png`,
+    Swimmer: `${base}assets/cards/swimmer_origami.png`,
+    Sailor: `${base}assets/cards/sailor_origami.png`,
+    Octopus: `${base}assets/cards/octopus_origami.png`,
+    Penguin: `${base}assets/cards/penguin_origami.png`,
+    Captain: `${base}assets/cards/captain_origami.png`,
+    Seagull: `${base}assets/cards/seagull_origami.png`,
+    Mermaid: `${base}assets/cards/mermaid_origami.png`
   }
 }
