@@ -21,7 +21,12 @@
     "battle:extensive": "node scripts/runBattle.js --games 500",
     "battle:single": "node scripts/runBattle.js --single --verbose",
     "battle:training": "node scripts/runBattle.js --games 200 --training",
-    "battle:legacy": "node scripts/batchBattle.js"
+    "battle:legacy": "node scripts/batchBattle.js",
+    "ai:test": "node scripts/quickTest.js",
+    "ai:train:test": "node scripts/trainAI.js --test",
+    "ai:train:quick": "node scripts/trainAI.js --quick",
+    "ai:train:full": "node scripts/trainAI.js --full",
+    "ai:train": "node scripts/trainAI.js"
   },
   "dependencies": {
     "firebase": "^10.7.1",

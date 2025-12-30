@@ -210,11 +210,13 @@ function RoomLobby() {
   /**
    * Handle add AI player (host only)
    */
+  const [aiDifficulty, setAiDifficulty] = useState('medium')
+
   const handleAddAI = async () => {
     if (!currentPlayer || !roomData) return
 
     try {
-      await addAIPlayer(roomId, 'medium')
+      await addAIPlayer(roomId, aiDifficulty)
     } catch (err) {
       console.error('Add AI player error:', err)
       setError(err.message)
@@ -365,15 +367,28 @@ function RoomLobby() {
               >
                 ⚙️ 編輯設定
               </Button>
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={handleAddAI}
-                disabled={players.length >= settings.maxPlayers}
-                className="room-lobby__add-ai-btn"
-              >
-                🤖 添加 AI
-              </Button>
+              <div className="room-lobby__ai-controls">
+                <select
+                  className="room-lobby__ai-difficulty"
+                  value={aiDifficulty}
+                  onChange={(e) => setAiDifficulty(e.target.value)}
+                  disabled={players.length >= settings.maxPlayers}
+                >
+                  <option value="easy">簡單 AI</option>
+                  <option value="medium">中等 AI</option>
+                  <option value="hard">困難 AI</option>
+                  <option value="expert">專家 AI ⭐</option>
+                </select>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={handleAddAI}
+                  disabled={players.length >= settings.maxPlayers}
+                  className="room-lobby__add-ai-btn"
+                >
+                  🤖 添加 AI
+                </Button>
+              </div>
             </div>
           )}
         </div>

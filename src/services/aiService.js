@@ -18,6 +18,8 @@
 import { isValidPair, filterCardsByName, countCardsByName } from '../utils/cardHelpers.js'
 import { calculateScore } from './scoreService.js'
 import { AI_TIMING } from '../utils/constants.js'
+import trainedGenome from '../data/trainedGenome.json'
+import { makeParametricDecision } from './parametricAI.js'
 
 // ============================================================================
 // HELPER FUNCTIONS - Collection and Multiplier Evaluation
@@ -877,6 +879,9 @@ export function makeAIDecision(difficulty, gameState, playerId) {
       return makeMediumDecision(gameState, playerId)
     case 'hard':
       return makeHardDecision(gameState, playerId)
+    case 'expert':
+      // 使用訓練好的 AI（74% 勝率 vs 基線）
+      return makeParametricDecision(trainedGenome, gameState, playerId)
     default:
       return makeEasyDecision(gameState, playerId)
   }

@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-11-20T07:25:55.552Z",
+  "results": {
+    "1_棄牌堆顯示": true,
+    "2_拖曳功能": true,
+    "3_完整回合": true,
+    "4_計分系統": true,
+    "5_勝利條件": "需要手動測試"
+  },
+  "issues": [],
+  "passedCount": 4,
+  "failedCount": 0,
+  "skippedCount": 1
+}

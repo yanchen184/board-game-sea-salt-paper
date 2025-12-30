@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": "data.exists() && data.child('players').child(auth.uid).exists()",
+
+        "players": {
+          "$playerId": {
+            ".write": "$playerId === auth.uid || (data.parent().child('hostId').val() === auth.uid)"
+          }
+        },
+
+        "gameState": {
+          ".write": "data.parent().child('players').child(auth.uid).exists()"
+        },
+
+        "settings": {
+          ".write": "data.parent().child('hostId').val() === auth.uid"
+        }
+      }
+    }
+  }
+}
